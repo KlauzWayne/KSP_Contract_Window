@@ -12,3 +12,6 @@
 /Source/ContractsWindow.Unity/obj/Release/.NETFramework,Version=v4.6.AssemblyAttributes.cs
 /.vs/VSWorkspaceState.json
 /Source/.vs/KSPP_Contracts/v16/.suo
+/Source/ContractsWindow.Unity/Output
+/Source/ContractsWindow.Unity/obj/Debug
+/Source/Bin and Obj Backup/Contracts/DesignTimeResolveAssemblyReferencesInput.cache
