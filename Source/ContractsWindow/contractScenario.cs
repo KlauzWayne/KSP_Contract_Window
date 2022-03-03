@@ -117,8 +117,6 @@ namespace ContractsWindow
                         string activeString = "";
                         string hiddenString = "";
                         string vesselString = "";
-                        bool ascending, showActive;
-                        int sortMode;
                         bool master = false;
 
                         if (!m.HasValue("MissionName"))
@@ -138,11 +136,11 @@ namespace ContractsWindow
                         if (m.HasValue("VesselIDs"))
                             vesselString = m.GetValue("VesselIDs");
 
-                        if (!bool.TryParse(m.GetValue("AscendingSort"), out ascending))
+                        if (!bool.TryParse(m.GetValue("AscendingSort"), out bool ascending))
                             ascending = true;
-                        if (!bool.TryParse(m.GetValue("ShowActiveList"), out showActive))
+                        if (!bool.TryParse(m.GetValue("ShowActiveList"), out bool showActive))
                             showActive = true;
-                        if (!int.TryParse(m.GetValue("SortMode"), out sortMode))
+                        if (!int.TryParse(m.GetValue("SortMode"), out int sortMode))
                             sortMode = 0;
 
                         contractMission mission = new contractMission(name, activeString, hiddenString, vesselString, ascending, showActive, sortMode, master);
@@ -214,11 +212,7 @@ namespace ContractsWindow
         {
             Assembly assembly = AssemblyLoader.loadedAssemblies.GetByAssembly(Assembly.GetExecutingAssembly()).assembly;
             var ainfoV = Attribute.GetCustomAttribute(assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-            switch (ainfoV == null)
-            {
-                case true: infoVersion = ""; break;
-                default: infoVersion = ainfoV.InformationalVersion; break;
-            }
+            infoVersion = ainfoV?.InformationalVersion ?? "";
 
             bool stockToolbar = true;
 
@@ -424,15 +418,10 @@ namespace ContractsWindow
             }
         }
 
-        internal void removeMissionList(string name, bool delete = true)
+        internal void removeMissionList(string name)
         {
             if (missionList.Contains(name))
             {
-                if (delete)
-                {
-                    contractMission c = missionList[name];
-                    c = null;
-                }
                 missionList.Remove(name);
             }
             else
