@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/KSP_Contract_Window/v16/.suo
+/.vs/slnx.sqlite
+/Source/Bin and Obj Backup/Contracts/.NETFramework,Version=v4.6.AssemblyAttributes.cs
+/Source/Bin and Obj Backup/Contracts/KSPP_Contracts.csproj.AssemblyReference.cache
+/Source/ContractsWindow.Unity/obj/Debug/.NETFramework,Version=v4.6.AssemblyAttributes.cs
+/Source/ContractsWindow.Unity/obj/Debug/ContractsWindow.Unity.csproj.AssemblyReference.cache
+/Source/ContractsWindow.Unity/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+/Source/ContractsWindow.Unity/obj/Release/.NETFramework,Version=v4.6.AssemblyAttributes.cs
+/.vs/VSWorkspaceState.json
+/Source/.vs/KSPP_Contracts/v16/.suo
