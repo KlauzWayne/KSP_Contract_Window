@@ -49,7 +49,7 @@ namespace ContractsWindow.PanelInterfaces {
         private bool ascendingOrder = true;
         private bool showActiveMissions = true;
         private contractSortClass orderMode = contractSortClass.Difficulty;
-        private bool _masterMission;
+        internal bool _masterMission;
         private CW_MissionSection UIParent;
 
         public string ContractNumber {
