@@ -38,6 +38,7 @@ using ContractsWindow.Unity.Interfaces;
 using ContractsWindow.Unity.Unity;
 using KSP.UI;
 using KSP.Localization;
+using UnityEngine.Rendering;
 
 namespace ContractsWindow.PanelInterfaces {
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
@@ -389,15 +390,11 @@ namespace ContractsWindow.PanelInterfaces {
             contractScenario.Instance.addFullMissionList();
 
             currentMission = contractScenario.Instance.MasterMission;
-
-            foreach(Contract c in ContractSystem.Instance.Contracts) {
-                if(c == null || c.ContractState != Contract.State.Active)
-                    continue;
-
-                contractContainer cC = contractParser.getActiveContract(c.ContractGuid);
-
-                if(cC != null)
-                    currentMission.addContract(cC, true, true);
+            foreach(contractContainer contractContainer in ContractSystem.Instance.Contracts
+                .Where(contract => contract?.ContractState == Contract.State.Active)
+                .Select(activeContract => contractParser.getActiveContract(activeContract.ContractGuid))
+                .Where(contractContainer => contractContainer != null)) {
+                currentMission.addContract(contractContainer, true, true);
             }
 
             UIWindow.SelectMission(currentMission);
@@ -407,16 +404,10 @@ namespace ContractsWindow.PanelInterfaces {
             if(!StockToolbar && !ReplaceToolbar)
                 return;
 
-            if(contractStockToolbar.Instance == null)
-                return;
-
-            if(contractStockToolbar.Instance.Button == null)
-                return;
-
             if(on)
-                contractStockToolbar.Instance.Button.SetTrue(false);
+                contractStockToolbar.Instance?.Button?.SetTrue(false);
             else
-                contractStockToolbar.Instance.Button.SetFalse(false);
+                contractStockToolbar.Instance?.Button?.SetFalse(false);
         }
 
         public void SetWindowPosition(Rect r) {
@@ -437,68 +428,16 @@ namespace ContractsWindow.PanelInterfaces {
         }
 
         private void refreshContracts(List<Guid> list, bool sort = true) {
-            List<Guid> removeList = new List<Guid>();
             List<Guid> pinnedRemoveList = new List<Guid>();
 
+            IEnumerable<contractContainer> contracts = list.Select(id => contractParser.getActiveContract(id) ?? contractParser.getCompletedContract(id)).Where(cc => cc != null);
 
-            foreach(Guid id in list) {
-                contractContainer cC = contractParser.getActiveContract(id);
-
-                if(cC == null)
-                    cC = contractParser.getCompletedContract(id);
-
-                if(cC == null) {
-                    removeList.Add(id);
-                    continue;
-                }
-                else {
-                    if(cC.Root.ContractState != Contract.State.Active) {
-                        cC.Duration = 0;
-                        cC.DaysToExpire = "----";
-
-                        cC.Title = cC.Root.Title;
-                        cC.Notes = cC.Root.Notes;
-
-                        foreach(parameterContainer pC in cC.AllParamList) {
-                            pC.Title = pC.CParam.Title;
-                            pC.setNotes(pC.CParam.Notes);
-                        }
-
-                        continue;
-                    }
-
-                    //Update contract timers
-                    if(cC.Root.DateDeadline <= 0) {
-                        cC.Duration = double.MaxValue;
-                        cC.DaysToExpire = "----";
-                    }
-                    else {
-                        cC.Duration = cC.Root.DateDeadline - Planetarium.GetUniversalTime();
-                        //Calculate time in day values using Kerbin or Earth days
-                        cC.DaysToExpire = cC.timeInDays(cC.Duration);
-                    }
-
-                    cC.Title = cC.Root.Title;
-                    cC.Notes = cC.Root.Notes;
-
-                    foreach(parameterContainer pC in cC.AllParamList) {
-                        pC.Title = pC.CParam.Title;
-                        pC.setNotes(pC.CParam.Notes);
-                    }
-                }
+            foreach(contractContainer contractContainer in contracts) {
+                UpdateContract(contractContainer);
             }
 
-            foreach(Guid id in pinnedList) {
-                contractContainer cC = contractParser.getActiveContract(id);
-                if(cC == null)
-                    pinnedRemoveList.Add(id);
-            }
-
-            foreach(Guid id in removeList)
-                contractScenario.ListRemove(list, id);
-
-            foreach(Guid id in pinnedRemoveList)
-                contractScenario.ListRemove(pinnedList, id);
+            list = contracts.Select(c => c.ID).ToList();
+            pinnedList = pinnedList.Where(id => contractParser.getActiveContract(id) != null).ToList();
 
             if(sort) {
                 list = sortContracts(list, currentMission.OrderMode, currentMission.DescendingOrder);
@@ -507,17 +446,32 @@ namespace ContractsWindow.PanelInterfaces {
             UIWindow?.UpdateMissionChildren();
         }
 
-        private List<Guid> sortContracts(List<Guid> list, contractSortClass sortClass, bool dsc) {
-            sortList.Clear();
-
-            foreach(Guid id in list) {
-                contractUIObject cC = currentMission.getContract(id);
-
-                if(cC != null && cC.Order == null)
-                    continue;
-
-                sortList.Add(cC);
+        private static void UpdateContract(contractContainer cC) {
+            if(cC.Root.ContractState != Contract.State.Active) {
+                cC.Duration = 0;
+                cC.DaysToExpire = "----";
             }
+            else if(cC.Root.DateDeadline <= 0) {//Update contract timers 
+                cC.Duration = double.MaxValue;
+                cC.DaysToExpire = "----";
+            }
+            else {
+                cC.Duration = cC.Root.DateDeadline - Planetarium.GetUniversalTime();
+                //Calculate time in day values using Kerbin or Earth days
+                cC.DaysToExpire = cC.timeInDays(cC.Duration);
+            }
+
+            cC.Title = cC.Root.Title;
+            cC.Notes = cC.Root.Notes;
+
+            foreach(parameterContainer pC in cC.AllParamList) {
+                pC.Title = pC.CParam.Title;
+                pC.setNotes(pC.CParam.Notes);
+            }
+        }
+
+        private List<Guid> sortContracts(List<Guid> list, contractSortClass sortClass, bool dsc) {
+            sortList = list.Select(id => currentMission.getContract(id)).Where(cC => cC != null && cC.Order == null).ToList(); //order != null resembles pinned contracts
 
             switch(sortClass) {
                 case contractSortClass.Expiration:
@@ -549,11 +503,8 @@ namespace ContractsWindow.PanelInterfaces {
             if(pinnedList.Count > 0)
                 list.AddRange(pinnedList);
 
-            int k = sortList.Count;
-
             foreach(contractUIObject c in sortList) {
-                if(c != null)
-                    list.Add(c.ID);
+                list.Add(c.ID);
             }
 
             return list;
@@ -572,7 +523,7 @@ namespace ContractsWindow.PanelInterfaces {
                 }
             }
             if(altList.Count > 1) {
-                //TODO: ban magic
+                //TODO: replace sorcery
                 altList.Sort((a, b) => RUIutils.SortAscDescPrimarySecondary(B, ((ReachAltitudeEnvelope) a.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude.CompareTo(((ReachAltitudeEnvelope) b.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude), a.Container.Title.CompareTo(b.Container.Title)));
                 for(int j = 0; j < position.Count; j++) {
                     cL[position[j]] = altList[j];

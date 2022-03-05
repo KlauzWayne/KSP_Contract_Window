@@ -344,26 +344,17 @@ namespace ContractsWindow.PanelInterfaces {
         }
 
         internal List<Guid> loadPinnedContracts(List<Guid> gID) {
-            List<contractUIObject> temp = new List<contractUIObject>();
-            List<Guid> idTemp = new List<Guid>();
+            List<contractUIObject> pinned = gID.Select(id => getContract(id)).Where(contract => contract?.Order != null).ToList();
+            List<Guid> pinnedIds = new List<Guid>();
 
-            foreach(Guid id in gID) {
-                contractUIObject c = getContract(id);
-
-                if(c?.Order != null)
-                    temp.Add(c);
-            }
-
-            if(temp.Count > 0) {
-                temp.Sort((a, b) => {
+            if(pinned.Count > 0) {
+                pinned.Sort((a, b) => {
                     return Comparer<int?>.Default.Compare(a.Order, b.Order);
                 });
-                foreach(contractUIObject cuio in temp) {
-                    idTemp.Add(cuio.Container.Root.ContractGuid);
-                }
+                pinnedIds = pinned.Select(x => x.Container.Root.ContractGuid).ToList();
             }
 
-            return idTemp;
+            return pinnedIds;
         }
 
         private bool stringBoolParse(string source) {
@@ -391,7 +382,7 @@ namespace ContractsWindow.PanelInterfaces {
                 contractUtils.LogFormatted("Mission List Already Contains Contract: {0}", c.Title);
         }
 
-        private bool addToMasterList(contractContainer c, bool add = false) {
+        private bool addToMasterList(contractContainer c, bool add) {
             if(!contractList.ContainsKey(c.Root.ContractGuid)) {
                 contractUIObject cUI = new contractUIObject(c, this);
 
