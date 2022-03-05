@@ -85,6 +85,7 @@
     </Compile>
     <Compile Include="PanelInterfaces\contractWindow.cs" />
     <Compile Include="PanelInterfaces\IntervalNodeUI.cs" />
+    <Compile Include="PanelInterfaces\masterMission.cs" />
     <Compile Include="PanelInterfaces\parameterUIObject.cs" />
     <Compile Include="PanelInterfaces\progressUIPanel.cs" />
     <Compile Include="PanelInterfaces\StandardNodeUI.cs" />
