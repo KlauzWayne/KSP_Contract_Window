@@ -177,8 +177,8 @@ namespace ContractsWindow
                 ConfigNode scenes = new ConfigNode("Contracts_Window_Parameters");
 
                 //Scene settings
-                scenes.AddValue("WindowPosition", contractUtils.stringConcat(windowPos, windowPos.Length));
-                scenes.AddValue("WindowVisible", contractUtils.stringConcat(windowVisible, windowVisible.Length));
+                scenes.AddValue("WindowPosition", contractUtils.stringConcat(windowPos));
+                scenes.AddValue("WindowVisible", contractUtils.stringConcat(windowVisible));
 
                 for (int i = missionList.Count - 1; i >= 0; i--)
                 {

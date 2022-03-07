@@ -97,8 +97,10 @@ namespace ContractsWindow
 				if (handlers == null)
 					return;
 
-				for (int j = 0; j < handlers.Length; j++)
-					toggleTooltip(handlers[j], isOn);
+                foreach (TooltipHandler handler in handlers)
+				{
+					toggleTooltip(handler, isOn);
+				}
 			}
 		}
 
@@ -113,40 +115,35 @@ namespace ContractsWindow
 			if (loadedPrefabs == null)
 				return;
 
-			if (i == 1)
-			{
-				if (currentFontAdjustment == 1)
-					return;
+            switch (i)
+            {
+				case 1: 
+					if (currentFontAdjustment == 1)
+						return;
+					currentFontAdjustment = 1;
+					break;
+				case 0:
+					if (currentFontAdjustment == 0)
+						return;
+					currentFontAdjustment = 0;
+					break;
+				case -1:
+					currentFontAdjustment = 0;
+					break;
+				default:
+					break;
+            }
 
-				currentFontAdjustment = 1;
-			}
-			else if (i == 0)
-			{
-				if (currentFontAdjustment == 0)
-					return;
-
-				currentFontAdjustment = 0;
-			}
-			else if (i == -1)
-				currentFontAdjustment = 0;
-
-			for (int j = loadedPrefabs.Length - 1; j >= 0; j--)
-			{
-				GameObject obj = loadedPrefabs[j];
-
+            foreach (GameObject obj in loadedPrefabs)
+            {
 				if (obj == null)
 					continue;
 
 				var texts = obj.GetComponentsInChildren<TextHandler>(true);
 
-				for (int k = texts.Length - 1; k >= 0; k--)
+                foreach (TextHandler t in texts)
 				{
-					TextHandler t = texts[k];
-
-					if (t == null)
-						continue;
-
-					t.OnFontChange.Invoke(i);
+					t?.OnFontChange.Invoke(i);
 				}
 			}
 		}
@@ -234,9 +231,7 @@ namespace ContractsWindow
 			if (skinSprites == null)
 				return;
 
-			for (int i = skinSprites.Length - 1; i >= 0; i--)
-			{
-				Sprite s = skinSprites[i];
+            foreach (Sprite s in skinSprites){
 
 				if (s.name == "window")
 					_unitySkinDef.window.normal.background = s;
