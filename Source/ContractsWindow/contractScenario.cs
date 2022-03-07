@@ -148,7 +148,7 @@ namespace ContractsWindow {
                             masterMission = mission;
                         }
                         else {
-                            mission = new ContractMission(name, activeString, hiddenString, vesselString, ascending, showActive, sortMode, false);
+                            mission = new ContractMission(name, activeString, hiddenString, vesselString, ascending, showActive, sortMode);
                         }
 
                         if(!missionList.Contains(name))

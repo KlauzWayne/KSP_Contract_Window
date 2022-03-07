@@ -12,7 +12,8 @@ namespace ContractsWindow.PanelInterfaces {
             _masterMission = true;
         }
 
-        internal MasterMission(string active, string hidden, string vessels, bool asc, bool showActive, int sMode) : base(masterMissionTitle, active, hidden, vessels, asc, showActive, sMode, true) {
+        internal MasterMission(string active, string hidden, string vessels, bool asc, bool showActive, int sMode) : base(masterMissionTitle, active, hidden, vessels, asc, showActive, sMode) {
+            _masterMission = true;
         }
     }
 }
