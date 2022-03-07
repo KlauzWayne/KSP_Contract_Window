@@ -38,15 +38,12 @@ using ContractsWindow.Unity.Interfaces;
 using ContractsWindow.Unity.Unity;
 using KSP.UI;
 using KSP.Localization;
+using UnityEngine.Rendering;
 
-namespace ContractsWindow.PanelInterfaces
-{
+namespace ContractsWindow.PanelInterfaces {
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
-    public class contractWindow : MonoBehaviour, ICW_Window
-    {
+    public class contractWindow : MonoBehaviour, ICW_Window {
         private const string controlLock = "CWInputLock";
-
-        private static bool _firstLoad = true;
 
         private bool _isVisible;
         private bool _inputLock;
@@ -69,165 +66,144 @@ namespace ContractsWindow.PanelInterfaces
 
         private static contractWindow instance;
 
-        public static contractWindow Instance
-        {
-            get { return instance; }
+        public static contractWindow Instance {
+            get {
+                return instance;
+            }
         }
 
-        public bool TooltipsOn
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool TooltipsOn {
+            get {
+                if(contractLoader.Settings == null)
                     return true;
 
                 return contractLoader.Settings.tooltips;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.tooltips = value;
 
                 contractLoader.ToggleTooltips(value);
             }
         }
 
-        public bool IgnoreScale
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool IgnoreScale {
+            get {
+                if(contractLoader.Settings == null)
                     return false;
 
                 return contractLoader.Settings.ignoreKSPScale;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.ignoreKSPScale = value;
             }
         }
 
-        public bool IsVisible
-        {
-            get { return _isVisible; }
+        public bool IsVisible {
+            get {
+                return _isVisible;
+            }
         }
 
-        public bool PixelPerfect
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool PixelPerfect {
+            get {
+                if(contractLoader.Settings == null)
                     return false;
 
                 return contractLoader.Settings.pixelPerfect;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.pixelPerfect = value;
             }
         }
 
-        public bool LargeFont
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool LargeFont {
+            get {
+                if(contractLoader.Settings == null)
                     return false;
 
                 return contractLoader.Settings.largeFont;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.largeFont = value;
 
                 contractLoader.UpdateFontSize(value ? 1 : -1);
             }
         }
 
-        public float MasterScale
-        {
-            get { return GameSettings.UI_SCALE; }
+        public float MasterScale {
+            get {
+                return GameSettings.UI_SCALE;
+            }
         }
 
-        public float Scale
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public float Scale {
+            get {
+                if(contractLoader.Settings == null)
                     return 1;
 
                 return contractLoader.Settings.windowScale;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.windowScale = value;
             }
         }
 
-        public bool BlizzyAvailable
-        {
-            get { return ToolbarManager.ToolbarAvailable; }
+        public bool BlizzyAvailable {
+            get {
+                return ToolbarManager.ToolbarAvailable;
+            }
         }
 
-        public bool ReplaceToolbar
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool ReplaceToolbar {
+            get {
+                if(contractLoader.Settings == null)
                     return false;
 
                 return contractLoader.Settings.replaceStockApp;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.replaceStockApp = value;
 
-                if (value && contractStockToolbar.Instance != null)
+                if(value && contractStockToolbar.Instance != null)
                     contractStockToolbar.Instance.replaceStockApp();
             }
         }
 
-        public bool StockToolbar
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool StockToolbar {
+            get {
+                if(contractLoader.Settings == null)
                     return true;
 
                 return contractLoader.Settings.useStockToolbar;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.useStockToolbar = value;
 
                 contractScenario.Instance.toggleToolbars();
             }
         }
 
-        public bool StockUIStyle
-        {
-            get
-            {
-                if (contractLoader.Settings == null)
+        public bool StockUIStyle {
+            get {
+                if(contractLoader.Settings == null)
                     return false;
 
                 return contractLoader.Settings.stockUIStyle;
             }
-            set
-            {
-                if (contractLoader.Settings != null)
+            set {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.stockUIStyle = value;
 
                 contractLoader.ResetUIStyle();
 
-                if (_isVisible)
-                {
+                if(_isVisible) {
                     StartCoroutine(WaitForRebuild());
                     //if (UIWindow != null)
                     //{
@@ -246,69 +222,76 @@ namespace ContractsWindow.PanelInterfaces
             }
         }
 
-        public bool LockInput
-        {
-            get { return _inputLock; }
-            set
-            {
+        public bool LockInput {
+            get {
+                return _inputLock;
+            }
+            set {
                 _inputLock = value;
 
-                if (_inputLock)
+                if(_inputLock)
                     InputLockManager.SetControlLock(controlLock);
                 else
                     InputLockManager.RemoveControlLock(controlLock);
             }
         }
 
-        public string AllMissionTitle
-        {
-            get { return Localizer.Format("#autoLOC_textAllMissionTitle"); }
+        public string AllMissionTitle {
+            get {
+                return Localizer.Format("#autoLOC_textAllMissionTitle");
+            }
         }
 
-        public string ProgressTitle
-        {
-            get { return Localizer.Format("#autoLOC_textProgressTitle"); }
+        public string ProgressTitle {
+            get {
+                return Localizer.Format("#autoLOC_textProgressTitle");
+            }
         }
 
-        public string Version
-        {
-            get { return contractScenario.Instance.InfoVersion; }
+        public string Version {
+            get {
+                return contractScenario.Instance.InfoVersion;
+            }
         }
 
-        public Canvas TooltipCanvas
-        {
-            get { return UIMasterController.Instance.tooltipCanvas; }
+        public Canvas TooltipCanvas {
+            get {
+                return UIMasterController.Instance.tooltipCanvas;
+            }
         }
 
-        public IList<IMissionSection> GetMissions
-        {
-            get { return new List<IMissionSection>(contractScenario.Instance.getAllMissions().ToArray()); }
+        public IList<IMissionSection> GetMissions {
+            get {
+                return new List<IMissionSection>(contractScenario.Instance.getAllMissions().ToArray());
+            }
         }
 
-        public IMissionSection GetCurrentMission
-        {
-            get { return currentMission; }
+        public IMissionSection GetCurrentMission {
+            get {
+                return currentMission;
+            }
         }
 
-        public IProgressPanel GetProgressPanel
-        {
-            get { return progressPanel; }
+        public IProgressPanel GetProgressPanel {
+            get {
+                return progressPanel;
+            }
         }
 
-        public IList<IContractSection> GetAllContracts
-        {
-            get { return contractScenario.Instance.MasterMission.GetContracts; }
+        public IList<IContractSection> GetAllContracts {
+            get {
+                return contractScenario.Instance.MasterMission.GetContracts;
+            }
         }
 
-        public Transform ContractStorageContainer
-        {
-            get { return transform; }
+        public Transform ContractStorageContainer {
+            get {
+                return transform;
+            }
         }
 
-        private void Awake()
-        {
-            if (instance != null && instance != this)
-            {
+        private void Awake() {
+            if(instance != null && instance != this) {
                 Destroy(gameObject);
                 return;
             }
@@ -321,8 +304,7 @@ namespace ContractsWindow.PanelInterfaces
             progressParser.onProgressParsed.Add(onProgressLoaded);
         }
 
-        private void Start()
-        {
+        private void Start() {
             sceneInt = contractUtils.currentScene(HighLogic.LoadedScene);
 
             contractLoader.UpdateFontSize(LargeFont ? 1 : 0);
@@ -330,22 +312,19 @@ namespace ContractsWindow.PanelInterfaces
             StartCoroutine(waitForContentLoad());
         }
 
-        private void OnDestroy()
-        {
-            if (instance != this)
+        private void OnDestroy() {
+            if(instance != this)
                 return;
 
             instance = null;
 
-            if (UIWindow != null)
-            {
+            if(UIWindow != null) {
                 UIWindow.gameObject.SetActive(false);
 
                 Destroy(UIWindow.gameObject);
             }
 
-            if (_repeatingWorker != null)
-            {
+            if(_repeatingWorker != null) {
                 StopCoroutine(_repeatingWorker);
                 _repeatingWorker = null;
             }
@@ -355,14 +334,12 @@ namespace ContractsWindow.PanelInterfaces
             contractParser.onContractsParsed.Remove(onContractsLoaded);
             progressParser.onProgressParsed.Remove(onProgressLoaded);
         }
-        
-        private void onSettingsApplied()
-        {
-            if (!windowGenerated || windowGenerating)
+
+        private void onSettingsApplied() {
+            if(!windowGenerated || windowGenerating)
                 return;
 
-            if (UIWindow != null)
-            {
+            if(UIWindow != null) {
                 windowPos = contractScenario.Instance.windowRects[sceneInt];
 
                 UIWindow.setScale();
@@ -370,19 +347,15 @@ namespace ContractsWindow.PanelInterfaces
             }
         }
 
-        private IEnumerator RepeatingWorker(float seconds)
-        {
+        private IEnumerator RepeatingWorker(float seconds) {
             WaitForSeconds wait = new WaitForSeconds(seconds);
 
             yield return wait;
 
-            while (true)
-            {
-                if (UIWindow != null)
-                {
-                    if (UIWindow.ShowingContracts)
-                    {
-                        if (cList.Count > 0)
+            while(true) {
+                if(UIWindow != null) {
+                    if(UIWindow.ShowingContracts) {
+                        if(cList.Count > 0)
                             refreshContracts(cList, false);
                     }
                     else
@@ -393,198 +366,114 @@ namespace ContractsWindow.PanelInterfaces
             }
         }
 
-        public void NewMission(string title, Guid id)
-        {
-            if (string.IsNullOrEmpty(title))
+        public void NewMission(string title, Guid id) {
+            if(string.IsNullOrEmpty(title))
                 return;
 
-            if (!contractScenario.Instance.addMissionList(title))
+            if(!contractScenario.Instance.addMissionList(title))
                 return;
 
             contractMission cM = contractScenario.Instance.getMissionList(title);
 
-            if (cM == null)
+            if(cM == null)
                 return;
 
             contractContainer c = contractParser.getActiveContract(id);
 
-            if (c == null)
+            if(c == null)
                 return;
 
             cM.addContract(c, true, true);
         }
 
-        public void Rebuild()
-        {
+        public void Rebuild() {
             contractScenario.Instance.addFullMissionList();
 
             currentMission = contractScenario.Instance.MasterMission;
-
-            int l = ContractSystem.Instance.Contracts.Count;
-
-            for (int i = 0; i < l; i++)
-            {
-                Contract c = ContractSystem.Instance.Contracts[i];
-
-                if (c == null || c.ContractState != Contract.State.Active)
-                    continue;
-
-                contractContainer cC = contractParser.getActiveContract(c.ContractGuid);
-
-                if (cC != null)
-                    currentMission.addContract(cC, true, true);
+            foreach(contractContainer contractContainer in ContractSystem.Instance.Contracts
+                .Where(contract => contract?.ContractState == Contract.State.Active)
+                .Select(activeContract => contractParser.getActiveContract(activeContract.ContractGuid))
+                .Where(contractContainer => contractContainer != null)) {
+                currentMission.addContract(contractContainer, true, true);
             }
 
             UIWindow.SelectMission(currentMission);
         }
 
-        public void SetAppState(bool on)
-        {
-            if (!StockToolbar && !ReplaceToolbar)
+        public void SetAppState(bool on) {
+            if(!StockToolbar && !ReplaceToolbar)
                 return;
 
-            if (contractStockToolbar.Instance == null)
-                return;
-
-            if (contractStockToolbar.Instance.Button == null)
-                return;
-
-            if (on)
-                contractStockToolbar.Instance.Button.SetTrue(false);
+            if(on)
+                contractStockToolbar.Instance?.Button?.SetTrue(false);
             else
-                contractStockToolbar.Instance.Button.SetFalse(false);
+                contractStockToolbar.Instance?.Button?.SetFalse(false);
         }
 
-        public void SetWindowPosition(Rect r)
-        {
+        public void SetWindowPosition(Rect r) {
             windowPos = r;
 
             contractScenario.Instance.windowRects[sceneInt] = windowPos;
         }
 
-        public void setMission(contractMission mission)
-        {
+        public void setMission(contractMission mission) {
             currentMission = mission;
 
             setMission();
         }
 
-        public void RefreshContracts()
-        {
-            if (cList.Count > 0)
+        public void RefreshContracts() {
+            if(cList.Count > 0)
                 refreshContracts(cList, true);
         }
 
-        private void refreshContracts(List<Guid> list, bool sort = true)
-        {
-            List<Guid> removeList = new List<Guid>();
+        private void refreshContracts(List<Guid> list, bool sort = true) {
             List<Guid> pinnedRemoveList = new List<Guid>();
 
-            for (int i = 0; i < list.Count; i++)
-            {
-                Guid id = list[i];
+            IEnumerable<contractContainer> contracts = list.Select(id => contractParser.getActiveContract(id) ?? contractParser.getCompletedContract(id)).Where(cc => cc != null);
 
-                contractContainer cC = contractParser.getActiveContract(id);
-
-                if (cC == null)
-                    cC = contractParser.getCompletedContract(id);
-
-                if (cC == null)
-                {
-                    removeList.Add(id);
-                    continue;
-                }
-                else
-                {
-                    if (cC.Root.ContractState != Contract.State.Active)
-                    {
-                        cC.Duration = 0;
-                        cC.DaysToExpire = "----";
-
-                        cC.Title = cC.Root.Title;
-                        cC.Notes = cC.Root.Notes;
-
-                        foreach (parameterContainer pC in cC.AllParamList)
-                        {
-                            pC.Title = pC.CParam.Title;
-                            pC.setNotes(pC.CParam.Notes);
-                        }
-
-                        continue;
-                    }
-
-                    //Update contract timers
-                    if (cC.Root.DateDeadline <= 0)
-                    {
-                        cC.Duration = double.MaxValue;
-                        cC.DaysToExpire = "----";
-                    }
-                    else
-                    {
-                        cC.Duration = cC.Root.DateDeadline - Planetarium.GetUniversalTime();
-                        //Calculate time in day values using Kerbin or Earth days
-                        cC.DaysToExpire = cC.timeInDays(cC.Duration);
-                    }
-
-                    cC.Title = cC.Root.Title;
-                    cC.Notes = cC.Root.Notes;
-
-                    foreach (parameterContainer pC in cC.AllParamList)
-                    {
-                        pC.Title = pC.CParam.Title;
-                        pC.setNotes(pC.CParam.Notes);
-                    }
-                }
+            foreach(contractContainer contractContainer in contracts) {
+                UpdateContract(contractContainer);
             }
 
-            foreach (Guid id in pinnedList)
-            {
-                contractContainer cC = contractParser.getActiveContract(id);
-                if (cC == null)
-                    pinnedRemoveList.Add(id);
-            }
+            list = contracts.Select(c => c.ID).ToList();
+            pinnedList = pinnedList.Where(id => contractParser.getActiveContract(id) != null).ToList();
 
-            foreach (Guid id in removeList)
-                contractScenario.ListRemove(list, id);
-
-            foreach (Guid id in pinnedRemoveList)
-                contractScenario.ListRemove(pinnedList, id);
-
-            if (sort)
-            {
+            if(sort) {
                 list = sortContracts(list, currentMission.OrderMode, currentMission.DescendingOrder);
-
-                if (UIWindow != null)
-                    UIWindow.SortMissionChildren(list);
+                UIWindow?.SortMissionChildren(list);
             }
-
-            if (UIWindow != null)
-                UIWindow.UpdateMissionChildren();
+            UIWindow?.UpdateMissionChildren();
         }
 
-        private List<Guid> sortContracts(List<Guid> list, contractSortClass sortClass, bool dsc)
-        {
-            sortList.Clear();
-
-            int l = list.Count;
-
-            for (int i = 0; i < l; i++)
-            {
-                Guid id = list[i];
-
-                contractUIObject cC = currentMission.getContract(id);
-
-                if (cC == null)
-                    continue;
-
-                if (cC.Order != null)
-                    continue;
-
-                sortList.Add(cC);
+        private static void UpdateContract(contractContainer cC) {
+            if(cC.Root.ContractState != Contract.State.Active) {
+                cC.Duration = 0;
+                cC.DaysToExpire = "----";
+            }
+            else if(cC.Root.DateDeadline <= 0) {//Update contract timers 
+                cC.Duration = double.MaxValue;
+                cC.DaysToExpire = "----";
+            }
+            else {
+                cC.Duration = cC.Root.DateDeadline - Planetarium.GetUniversalTime();
+                //Calculate time in day values using Kerbin or Earth days
+                cC.DaysToExpire = cC.timeInDays(cC.Duration);
             }
 
-            switch (sortClass)
-            {
+            cC.Title = cC.Root.Title;
+            cC.Notes = cC.Root.Notes;
+
+            foreach(parameterContainer pC in cC.AllParamList) {
+                pC.Title = pC.CParam.Title;
+                pC.setNotes(pC.CParam.Notes);
+            }
+        }
+
+        private List<Guid> sortContracts(List<Guid> list, contractSortClass sortClass, bool dsc) {
+            sortList = list.Select(id => currentMission.getContract(id)).Where(cC => cC != null && cC.Order == null).ToList(); //order != null resembles pinned contracts
+
+            switch(sortClass) {
                 case contractSortClass.Expiration:
                     sortList.Sort((a, b) => RUIutils.SortAscDescPrimarySecondary(!dsc, a.Container.Duration.CompareTo(b.Container.Duration), a.Container.Title.CompareTo(b.Container.Title)));
                     break;
@@ -611,45 +500,32 @@ namespace ContractsWindow.PanelInterfaces
 
             list.Clear();
 
-            if (pinnedList.Count > 0)
+            if(pinnedList.Count > 0)
                 list.AddRange(pinnedList);
 
-            int k = sortList.Count;
-
-            for (int i = 0; i < k; i++)
-            {
-                contractUIObject c = sortList[i];
-
-                if (c == null)
-                    continue;
-
+            foreach(contractUIObject c in sortList) {
                 list.Add(c.ID);
             }
 
             return list;
         }
 
-        private List<contractUIObject> typeSort(List<contractUIObject> cL, bool B)
-        {
+        private List<contractUIObject> typeSort(List<contractUIObject> cL, bool B) {
             List<int> position = new List<int>();
             List<contractUIObject> altList = new List<contractUIObject>();
-            for (int i = 0; i < cL.Count; i++)
-            {
-                foreach (ContractParameter cP in cL[i].Container.Root.AllParameters)
-                {
-                    if (cP.GetType() == typeof(ReachAltitudeEnvelope))
-                    {
+            for(int i = 0; i < cL.Count; i++) {
+                foreach(ContractParameter cP in cL[i].Container.Root.AllParameters) {
+                    if(cP.GetType() == typeof(ReachAltitudeEnvelope)) {
                         altList.Add(cL[i]);
                         position.Add(i);
                         break;
                     }
                 }
             }
-            if (altList.Count > 1)
-            {
-                altList.Sort((a, b) => RUIutils.SortAscDescPrimarySecondary(B, ((ReachAltitudeEnvelope)a.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude.CompareTo(((ReachAltitudeEnvelope)b.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude), a.Container.Title.CompareTo(b.Container.Title)));
-                for (int j = 0; j < position.Count; j++)
-                {
+            if(altList.Count > 1) {
+                //TODO: replace sorcery
+                altList.Sort((a, b) => RUIutils.SortAscDescPrimarySecondary(B, ((ReachAltitudeEnvelope) a.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude.CompareTo(((ReachAltitudeEnvelope) b.Container.Root.AllParameters.First(s => s.GetType() == typeof(ReachAltitudeEnvelope))).minAltitude), a.Container.Title.CompareTo(b.Container.Title)));
+                for(int j = 0; j < position.Count; j++) {
                     cL[position[j]] = altList[j];
                 }
             }
@@ -657,25 +533,20 @@ namespace ContractsWindow.PanelInterfaces
             return cL;
         }
 
-        public void SetPinState(Guid id)
-        {
+        public void SetPinState(Guid id) {
             pinnedList.Add(id);
         }
 
-        public void UnPin(Guid id)
-        {
+        public void UnPin(Guid id) {
             contractScenario.ListRemove(pinnedList, id);
         }
 
-        public int GetNextPin()
-        {
+        public int GetNextPin() {
             return pinnedList.Count;
         }
 
-        private IEnumerator WaitForRebuild()
-        {
-            if (UIWindow != null)
-            {
+        private IEnumerator WaitForRebuild() {
+            if(UIWindow != null) {
                 UIWindow.gameObject.SetActive(false);
 
                 Destroy(UIWindow.gameObject);
@@ -689,33 +560,31 @@ namespace ContractsWindow.PanelInterfaces
             windowGenerating = false;
 
             positionSet = false;
-            
-            if (!windowGenerated && !windowGenerating)
+
+            if(!windowGenerated && !windowGenerating)
                 yield return StartCoroutine(GenerateWindow());
 
             Open();
         }
 
-        public void Open()
-        {
-            if (!windowGenerated && !windowGenerating)
+        public void Open() {
+            if(!windowGenerated && !windowGenerating)
                 StartCoroutine(GenerateWindow());
 
             StartCoroutine(WaitForOpen());
         }
 
-        private IEnumerator WaitForOpen()
-        {
-            while (!windowGenerated)
+        private IEnumerator WaitForOpen() {
+            while(!windowGenerated)
                 yield return null;
 
-            if (UIWindow == null)
+            if(UIWindow == null)
                 yield break;
 
-            if (!positionSet)
+            if(!positionSet)
                 SetPosition();
 
-            if (_repeatingWorker != null)
+            if(_repeatingWorker != null)
                 StopCoroutine(_repeatingWorker);
 
             _repeatingWorker = StartCoroutine(RepeatingWorker(5));
@@ -725,13 +594,11 @@ namespace ContractsWindow.PanelInterfaces
             UIWindow.Open();
         }
 
-        public void Close()
-        {
-            if (UIWindow == null)
+        public void Close() {
+            if(UIWindow == null)
                 return;
 
-            if (_repeatingWorker != null)
-            {
+            if(_repeatingWorker != null) {
                 StopCoroutine(_repeatingWorker);
                 _repeatingWorker = null;
             }
@@ -741,14 +608,13 @@ namespace ContractsWindow.PanelInterfaces
             UIWindow.Close();
         }
 
-        private IEnumerator GenerateWindow()
-        {
-            if (contractLoader.WindowPrefab == null)
+        private IEnumerator GenerateWindow() {
+            if(contractLoader.WindowPrefab == null)
                 yield break;
 
-            if (UIWindow != null)
+            if(UIWindow != null)
                 yield break;
-            
+
             windowGenerating = true;
 
             UIWindow = Instantiate(contractLoader.WindowPrefab, DialogCanvasUtil.DialogCanvasRect, false).GetComponent<CW_Window>();
@@ -761,8 +627,7 @@ namespace ContractsWindow.PanelInterfaces
             windowGenerating = false;
         }
 
-        private void SetPosition()
-        {
+        private void SetPosition() {
             positionSet = true;
 
             windowPos = contractScenario.Instance.windowRects[sceneInt];
@@ -770,17 +635,15 @@ namespace ContractsWindow.PanelInterfaces
             UIWindow.SetPosition(windowPos);
         }
 
-        private void onContractsLoaded()
-        {
+        private void onContractsLoaded() {
             StartCoroutine(loadContracts());
         }
 
-        private IEnumerator loadContracts()
-        {
-            while (!contractParser.Loaded)
+        private IEnumerator loadContracts() {
+            while(!contractParser.Loaded)
                 yield return null;
 
-            while (contractScenario.Instance == null || !contractScenario.Instance.Loaded)
+            while(contractScenario.Instance == null || !contractScenario.Instance.Loaded)
                 yield return null;
 
             loadLists();
@@ -788,17 +651,15 @@ namespace ContractsWindow.PanelInterfaces
             contractsLoaded = true;
         }
 
-        private void loadLists()
-        {
+        private void loadLists() {
             contractUtils.LogFormatted("Loading All Contract Lists...");
 
             generateList();
 
             //Load ordering lists and contract settings after primary contract dictionary has been loaded
 
-            if (currentMission != null)
-            {
-                if (currentMission.ShowActiveMissions)
+            if(currentMission != null) {
+                if(currentMission.ShowActiveMissions)
                     cList = currentMission.ActiveMissionList;
                 else
                     cList = currentMission.HiddenMissionList;
@@ -807,50 +668,45 @@ namespace ContractsWindow.PanelInterfaces
             }
         }
 
-        private void generateList()
-        {
+        private void generateList() {
             contractScenario.Instance.loadAllMissionLists();
 
-            if (HighLogic.LoadedSceneIsFlight)
+            if(HighLogic.LoadedSceneIsFlight)
                 currentMission = contractScenario.Instance.setLoadedMission(FlightGlobals.ActiveVessel);
             else
                 currentMission = contractScenario.Instance.MasterMission;
         }
 
-        private void setMission()
-        {
-            if (currentMission == null)
+        private void setMission() {
+            if(currentMission == null)
                 return;
 
-            if (currentMission.ShowActiveMissions)
+            if(currentMission.ShowActiveMissions)
                 cList = currentMission.ActiveMissionList;
             else
                 cList = currentMission.HiddenMissionList;
 
             pinnedList = currentMission.loadPinnedContracts(cList);
 
-            if (UIWindow != null)
+            if(UIWindow != null)
                 UIWindow.SelectMission(currentMission);
 
             refreshContracts(cList);
         }
 
-        public void switchLists(bool showHidden)
-        {
-            if (showHidden)
+        public void switchLists(bool showHidden) {
+            if(showHidden)
                 cList = currentMission.HiddenMissionList;
             else
                 cList = currentMission.ActiveMissionList;
         }
 
-        private void onProgressLoaded()
-        {
+        private void onProgressLoaded() {
             StartCoroutine(loadProgressNodes());
         }
 
-        private IEnumerator loadProgressNodes()
-        {
-            while (!progressParser.Loaded)
+        private IEnumerator loadProgressNodes() {
+            while(!progressParser.Loaded)
                 yield return null;
 
             loadProgressLists();
@@ -858,14 +714,12 @@ namespace ContractsWindow.PanelInterfaces
             progressLoaded = true;
         }
 
-        private void loadProgressLists()
-        {
+        private void loadProgressLists() {
             progressPanel = new progressUIPanel();
         }
 
-        private IEnumerator waitForContentLoad()
-        {
-            while (!progressLoaded || !contractsLoaded)
+        private IEnumerator waitForContentLoad() {
+            while(!progressLoaded || !contractsLoaded)
                 yield return null;
 
             //if (_firstLoad)
@@ -874,60 +728,51 @@ namespace ContractsWindow.PanelInterfaces
             //    _firstLoad = false;
             //}
 
-            if (!windowGenerated && !windowGenerating)
+            if(!windowGenerated && !windowGenerating)
                 yield return StartCoroutine(GenerateWindow());
 
-            if (contractScenario.Instance.windowVisible[sceneInt])
-            {
+            if(contractScenario.Instance.windowVisible[sceneInt]) {
                 Open();
-                
-                if (StockToolbar || ReplaceToolbar)
+
+                if(StockToolbar || ReplaceToolbar)
                     SetAppState(true);
             }
-            else
-            {
+            else {
                 Close();
             }
         }
 
-        private void contractStateChange(Contract c)
-        {
-            if (c == null)
+        private void contractStateChange(Contract c) {
+            if(c == null)
                 return;
 
-            if (c.ContractState == Contract.State.Active)
-            {
+            if(c.ContractState == Contract.State.Active) {
                 contractContainer cC = contractParser.getActiveContract(c.ContractGuid);
 
-                if (cC != null && currentMission != null)
-                {
+                if(cC != null && currentMission != null) {
                     currentMission.addContract(cC, true, true, true);
 
-                    if (currentMission.ShowActiveMissions)
+                    if(currentMission.ShowActiveMissions)
                         refreshContracts(cList);
 
-                    if (!currentMission.MasterMission)
+                    if(!currentMission.MasterMission)
                         contractScenario.Instance.MasterMission.addContract(cC, true, true, true);
                 }
             }
-            else if (c.ContractState == Contract.State.Completed)
-            {
+            else if(c.ContractState == Contract.State.Completed) {
                 contractContainer cC = contractParser.getCompletedContract(c.ContractGuid);
 
-                if (cC != null && currentMission != null)
-                {
-                    if (currentMission.ContractContained(cC.ID))
+                if(cC != null && currentMission != null) {
+                    if(currentMission.ContractContained(cC.ID))
                         currentMission.RefreshContract(cC.ID);
                 }
             }
-            else if (c.ContractState == Contract.State.Declined && currentMission != null)
-            {
-                if (currentMission.ContractContained(c.ContractGuid))
+            else if(c.ContractState == Contract.State.Declined && currentMission != null) {
+                if(currentMission.ContractContained(c.ContractGuid))
                     currentMission.RefreshContract(c.ContractGuid);
             }
-            else if (c.ContractState == Contract.State.Cancelled && currentMission != null)
-            {
-                if (currentMission.ContractContained(c.ContractGuid))
+            else if(c.ContractState == Contract.State.Cancelled && currentMission != null) {
+                if(currentMission.ContractContained(c.ContractGuid))
                     currentMission.RefreshContract(c.ContractGuid);
             }
         }

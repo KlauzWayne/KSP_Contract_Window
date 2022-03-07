@@ -34,17 +34,16 @@ using ContractsWindow.Toolbar;
 using ContractsWindow.PanelInterfaces;
 using ContractParser;
 
-namespace ContractsWindow
-{
+namespace ContractsWindow {
     [KSPScenario(ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames
         , GameScenes.FLIGHT, GameScenes.EDITOR, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
-    public class contractScenario : ScenarioModule
-    {
+    public class contractScenario : ScenarioModule {
         #region Scenario Setup
 
-        public static contractScenario Instance
-        {
-            get { return instance; }
+        public static contractScenario Instance {
+            get {
+                return instance;
+            }
         }
 
         private static contractScenario instance;
@@ -53,14 +52,15 @@ namespace ContractsWindow
         private DictionaryValueList<string, contractMission> missionList = new DictionaryValueList<string, contractMission>();
 
         //A specific contractMission is assigned to hold all contracts; contracts can't be removed from this
-        private contractMission masterMission = new contractMission("MasterMission");
+        private contractMission masterMission = new masterMission();
 
         //The currently active mission
         private contractMission currentMission;
 
-        public contractMission MasterMission
-        {
-            get { return masterMission; }
+        public contractMission MasterMission {
+            get {
+                return masterMission;
+            }
         }
 
         //initialize data for each gamescene
@@ -72,29 +72,28 @@ namespace ContractsWindow
         internal contractToolbar blizzyToolbarButton = null;
 
         private bool _loaded;
-        
+
         private string infoVersion;
 
-        public string InfoVersion
-        {
-            get { return infoVersion; }
+        public string InfoVersion {
+            get {
+                return infoVersion;
+            }
         }
 
-        public bool Loaded
-        {
-            get { return _loaded; }
+        public bool Loaded {
+            get {
+                return _loaded;
+            }
         }
 
         //Convert all of our saved strings into the appropriate arrays for each game scene
-        public override void OnLoad(ConfigNode node)
-        {
+        public override void OnLoad(ConfigNode node) {
             instance = this;
 
-            try
-            {
+            try {
                 ConfigNode scenes = node.GetNode("Contracts_Window_Parameters");
-                if (scenes != null)
-                {
+                if(scenes != null) {
                     contractUtils.LogFormatted("Loading Contracts Window + Data");
                     windowPos = contractUtils.stringSplit(scenes.GetValue("WindowPosition"));
                     windowVisible = contractUtils.stringSplitBool(scenes.GetValue("WindowVisible"));
@@ -108,9 +107,8 @@ namespace ContractsWindow
 
                     //All saved contract missions are loaded here
                     //Each mission has a separate contract list
-                    foreach (ConfigNode m in scenes.GetNodes("Contracts_Window_Mission"))
-                    {
-                        if (m == null)
+                    foreach(ConfigNode m in scenes.GetNodes("Contracts_Window_Mission")) {
+                        if(m == null)
                             continue;
 
                         string name;
@@ -119,21 +117,21 @@ namespace ContractsWindow
                         string vesselString = "";
                         bool master = false;
 
-                        if (!m.HasValue("MissionName"))
+                        if(!m.HasValue("MissionName"))
                             continue;
-                        
+
                         name = m.GetValue("MissionName");
-                        
+
                         contractUtils.LogFormatted("Loading Contract Mission: {0}", name);
 
-                        if (name == "MasterMission")
+                        if(name == "MasterMission")
                             master = true;
 
-                        if (m.HasValue("ActiveListID"))
+                        if(m.HasValue("ActiveListID"))
                             activeString = m.GetValue("ActiveListID");
-                        if (m.HasValue("HiddenListID"))
+                        if(m.HasValue("HiddenListID"))
                             hiddenString = m.GetValue("HiddenListID");
-                        if (m.HasValue("VesselIDs"))
+                        if(m.HasValue("VesselIDs"))
                             vesselString = m.GetValue("VesselIDs");
 
                         if (!bool.TryParse(m.GetValue("AscendingSort"), out bool ascending))
@@ -143,33 +141,33 @@ namespace ContractsWindow
                         if (!int.TryParse(m.GetValue("SortMode"), out int sortMode))
                             sortMode = 0;
 
-                        contractMission mission = new contractMission(name, activeString, hiddenString, vesselString, ascending, showActive, sortMode, master);
+                        contractMission mission;
 
-                        if (master)
-                        {
+                        if(master) {
+                            mission = new masterMission(activeString, hiddenString, vesselString, ascending, showActive, sortMode);
                             masterMission = mission;
                         }
+                        else {
+                            mission = new contractMission(name, activeString, hiddenString, vesselString, ascending, showActive, sortMode, false);
+                        }
 
-                        if (!missionList.Contains(name))
+                        if(!missionList.Contains(name))
                             missionList.Add(name, mission);
                     }
 
                     loadWindow(winPos);
                 }
             }
-            catch (Exception e)
-            {
+            catch(Exception e) {
                 contractUtils.LogFormatted("Contracts Window Settings Cannot Be Loaded: {0}", e);
             }
 
             _loaded = true;
         }
 
-        public override void OnSave(ConfigNode node)
-        {
-            try
-            {
-                if (contractLoader.Settings != null)
+        public override void OnSave(ConfigNode node) {
+            try {
+                if(contractLoader.Settings != null)
                     contractLoader.Settings.Save();
 
                 saveWindow(windowRects[contractUtils.currentScene(HighLogic.LoadedScene)]);
@@ -180,11 +178,10 @@ namespace ContractsWindow
                 scenes.AddValue("WindowPosition", contractUtils.stringConcat(windowPos));
                 scenes.AddValue("WindowVisible", contractUtils.stringConcat(windowVisible));
 
-                for (int i = missionList.Count - 1; i >= 0; i--)
-                {
+                for(int i = missionList.Count - 1; i >= 0; i--) {
                     contractMission m = missionList.At(i);
 
-                    if (m == null)
+                    if(m == null)
                         continue;
 
                     ConfigNode missionNode = new ConfigNode("Contracts_Window_Mission");
@@ -195,46 +192,40 @@ namespace ContractsWindow
                     missionNode.AddValue("VesselIDs", m.vesselConcat(currentMission));
                     missionNode.AddValue("AscendingSort", m.AscendingOrder);
                     missionNode.AddValue("ShowActiveList", m.ShowActiveMissions);
-                    missionNode.AddValue("SortMode", (int)m.OrderMode);
+                    missionNode.AddValue("SortMode", (int) m.OrderMode);
 
                     scenes.AddNode(missionNode);
                 }
 
                 node.AddNode(scenes);
             }
-            catch (Exception e)
-            {
+            catch(Exception e) {
                 contractUtils.LogFormatted("Contracts Window Settings Cannot Be Saved: {0}", e);
             }
         }
 
-        private void Start()
-        {
+        private void Start() {
             Assembly assembly = AssemblyLoader.loadedAssemblies.GetByAssembly(Assembly.GetExecutingAssembly()).assembly;
             var ainfoV = Attribute.GetCustomAttribute(assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
             infoVersion = ainfoV?.InformationalVersion ?? "";
 
             bool stockToolbar = true;
 
-            if (contractLoader.Settings != null)
+            if(contractLoader.Settings != null)
                 stockToolbar = contractLoader.Settings.useStockToolbar;
 
-            if (stockToolbar || !ToolbarManager.ToolbarAvailable || contractLoader.Settings.replaceStockApp)
-            {
+            if(stockToolbar || !ToolbarManager.ToolbarAvailable || contractLoader.Settings.replaceStockApp) {
                 appLauncherButton = gameObject.AddComponent<contractStockToolbar>();
 
-                if (blizzyToolbarButton != null)
-                {
+                if(blizzyToolbarButton != null) {
                     Destroy(blizzyToolbarButton);
                     blizzyToolbarButton = null;
                 }
             }
-            else if (ToolbarManager.ToolbarAvailable && !stockToolbar)
-            {
+            else if(ToolbarManager.ToolbarAvailable && !stockToolbar) {
                 blizzyToolbarButton = gameObject.AddComponent<contractToolbar>();
 
-                if (appLauncherButton != null)
-                {
+                if(appLauncherButton != null) {
                     Destroy(appLauncherButton);
                     appLauncherButton = null;
                 }
@@ -244,14 +235,13 @@ namespace ContractsWindow
         }
 
         //Remove our contract window object
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             contractParser.onParameterAdded.Remove(onParameterAdded);
-            
-            if (appLauncherButton != null)
+
+            if(appLauncherButton != null)
                 Destroy(appLauncherButton);
 
-            if (blizzyToolbarButton != null)
+            if(blizzyToolbarButton != null)
                 Destroy(blizzyToolbarButton);
         }
 
@@ -259,25 +249,23 @@ namespace ContractsWindow
 
         #region contract Events
 
-        private void onParameterAdded(Contract c, ContractParameter cP)
-        {
+        private void onParameterAdded(Contract c, ContractParameter cP) {
             contractContainer cc = contractParser.getActiveContract(c.ContractGuid);
 
-            if (cc == null)
+            if(cc == null)
                 return;
 
             var missions = getMissionsContaining(cc.ID);
 
-            for (int i = missions.Count - 1; i >= 0; i--)
-            {
+            for(int i = missions.Count - 1; i >= 0; i--) {
                 contractMission m = missions[i];
 
-                if (m == null)
+                if(m == null)
                     continue;
 
                 contractUIObject cUI = m.getContract(cc.ID);
 
-                if (cUI == null)
+                if(cUI == null)
                     continue;
 
                 cUI.AddParameter();
@@ -285,20 +273,16 @@ namespace ContractsWindow
         }
 
         //Used by external assemblies to update parameter values for the UI
-        internal void paramChanged(Type t)
-        {
-            foreach (contractContainer cC in contractParser.getActiveContracts)
-            {
+        internal void paramChanged(Type t) {
+            foreach(contractContainer cC in contractParser.getActiveContracts) {
                 cC.updateParameterInfo(t);
             }
         }
 
         //Used by external assemblies to update contract values for the UI
-        internal void contractChanged(Type t)
-        {
-            foreach (contractContainer cC in contractParser.getActiveContracts)
-            {
-                if (cC.Root.GetType() == t)
+        internal void contractChanged(Type t) {
+            foreach(contractContainer cC in contractParser.getActiveContracts) {
+                if(cC.Root.GetType() == t)
                     cC.updateContractInfo();
             }
         }
@@ -307,41 +291,34 @@ namespace ContractsWindow
 
         #region internal methods
 
-        internal void toggleToolbars()
-        {
+        internal void toggleToolbars() {
             bool stockToolbar = true;
 
-            if (contractLoader.Settings != null)
+            if(contractLoader.Settings != null)
                 stockToolbar = contractLoader.Settings.useStockToolbar;
 
-            if (stockToolbar || !ToolbarManager.ToolbarAvailable)
-            {
-                if (blizzyToolbarButton != null)
-                {
+            if(stockToolbar || !ToolbarManager.ToolbarAvailable) {
+                if(blizzyToolbarButton != null) {
                     Destroy(blizzyToolbarButton);
                     blizzyToolbarButton = null;
                 }
 
-                if (appLauncherButton == null)
+                if(appLauncherButton == null)
                     appLauncherButton = gameObject.AddComponent<contractStockToolbar>();
             }
-            else if (ToolbarManager.ToolbarAvailable && !stockToolbar)
-            {
-                if (appLauncherButton != null)
-                {
+            else if(ToolbarManager.ToolbarAvailable && !stockToolbar) {
+                if(appLauncherButton != null) {
                     Destroy(appLauncherButton);
                     appLauncherButton = null;
                 }
 
-                if (blizzyToolbarButton == null)
+                if(blizzyToolbarButton == null)
                     blizzyToolbarButton = gameObject.AddComponent<contractToolbar>();
             }
         }
 
-        internal bool addMissionList(string name)
-        {
-            if (!missionList.Contains(name))
-            {
+        internal bool addMissionList(string name) {
+            if(!missionList.Contains(name)) {
                 contractMission mission = new contractMission(name);
                 missionList.Add(name, mission);
                 return true;
@@ -352,10 +329,8 @@ namespace ContractsWindow
             return false;
         }
 
-        internal bool addMissionList(contractMission mission)
-        {
-            if (!missionList.Contains(mission.MissionTitle))
-            {
+        internal bool addMissionList(contractMission mission) {
+            if(!missionList.Contains(mission.MissionTitle)) {
                 missionList.Add(mission.MissionTitle, mission);
                 return true;
             }
@@ -366,53 +341,26 @@ namespace ContractsWindow
         }
 
         //Used to add the master contract mission list; usually when something has gone wrong
-        internal void addFullMissionList()
-        {
-            string s = "MasterMission";
+        internal void addFullMissionList() {
+            string masterMissionTitle = "MasterMission";
 
-            if (missionList.Contains(s))
-                removeMissionList(s);
+            if(missionList.Contains(masterMissionTitle))
+                removeMissionList(masterMissionTitle);
 
-            if (addMissionList(s))
-            {
-                missionList[s].MasterMission = true;
+            if(addMissionList(masterMissionTitle)) {
+                missionList[masterMissionTitle].MasterMission = true;
                 addAllContractsToMaster();
-                masterMission = missionList[s];
+                masterMission = missionList[masterMissionTitle];
             }
         }
 
         //Adds all contracts to the master mission
-        private void addAllContractsToMaster()
-        {
-            contractMission Master = null;
+        private void addAllContractsToMaster() {
+            contractMission Master = missionList.Values.First(x => x?.MasterMission == true);
 
-            for (int i = missionList.Count - 1; i >= 0; i--)
-            {
-                contractMission m = missionList.At(i);
-
-                if (m == null)
-                    continue;
-
-                if (!m.MasterMission)
-                    continue;
-
-                Master = m;
-                break;
-            }
-
-            if (Master != null)
-            {
+            if(Master != null) {
                 List<contractContainer> active = contractParser.getActiveContracts;
-
-                int l = active.Count;
-
-                for (int j = 0; j < l; j++)
-                {
-                    contractContainer c = active[j];
-
-                    if (c == null)
-                        continue;
-
+                foreach(contractContainer c in active.Where(x=>x!=null)) {
                     Master.addContract(c, true, true);
                 }
             }
@@ -428,26 +376,23 @@ namespace ContractsWindow
                 contractUtils.LogFormatted("No Mission List Of Name: [{0}] Found", name);
         }
 
-        internal void resetMissionsList()
-        {
+        internal void resetMissionsList() {
             missionList.Clear();
         }
 
-        internal contractMission getMissionList(string name, bool warn = false)
-        {
-            if (missionList.Contains(name))
+        internal contractMission getMissionList(string name, bool warn = false) {
+            if(missionList.Contains(name))
                 return missionList[name];
-            else if (warn)
+            else if(warn)
                 contractUtils.LogFormatted("No Mission Of Name [{0}] Found In Primary Mission List", name);
 
             return null;
         }
 
-        internal void setCurrentMission(string s)
-        {
+        internal void setCurrentMission(string s) {
             contractMission m = getMissionList(s, true);
 
-            if (m != null)
+            if(m != null)
                 currentMission = m;
             else
                 currentMission = masterMission;
@@ -456,91 +401,79 @@ namespace ContractsWindow
             contractWindow.Instance.setMission(currentMission);
         }
 
-        internal contractMission setLoadedMission(Vessel v)
-        {
-            if (v == null)
+        internal contractMission setLoadedMission(Vessel v) {
+            if(v == null)
                 return masterMission;
 
-            for (int i = 0; i < missionList.Count; i++)
-            {
+            for(int i = 0; i < missionList.Count; i++) {
                 contractMission m = missionList.At(i);
 
-                if (m == null)
+                if(m == null)
                     continue;
 
-                if (m.ContainsVessel(v))
+                if(m.ContainsVessel(v))
                     return m;
             }
 
             return masterMission;
         }
 
-        internal List<contractMission> getMissionsContaining(Guid id)
-        {
+        internal List<contractMission> getMissionsContaining(Guid id) {
             return missionList.Values.Where(m => m.ContractContained(id)).ToList();
         }
 
         //Returns an ordered list of missions for the main window; the master mission is always first
-        internal List<contractMission> getAllMissions()
-        {
+        internal List<contractMission> getAllMissions() {
             List<contractMission> mList = new List<contractMission>();
             List<contractMission> tempList = new List<contractMission>();
 
-            for (int i = 0; i < missionList.Count; i++)
-            {
+            for(int i = 0; i < missionList.Count; i++) {
                 contractMission m = missionList.At(i);
 
-                if (m == null)
+                if(m == null)
                     continue;
 
-                if (m.MasterMission)
+                if(m.MasterMission)
                     mList.Add(m);
                 else
                     tempList.Add(m);
             }
 
-            if (mList.Count == 0)
-            {
-                if (addMissionList("MasterMission"))
+            if(mList.Count == 0) {
+                if(addMissionList("MasterMission"))
                     mList.Add(getMissionList("MasterMission"));
             }
 
             tempList.Sort((a, b) => RUIutils.SortAscDescPrimarySecondary(false, a.ActiveContracts.CompareTo(b.ActiveContracts), a.MissionTitle.CompareTo(b.MissionTitle)));
 
-            if (tempList.Count > 0)
+            if(tempList.Count > 0)
                 mList.AddRange(tempList);
 
             return mList;
         }
 
         //Initializes all missions that were added during the loading process
-        internal void loadAllMissionLists()
-        {
-            if (missionList.Count <= 0)
-            {
+        internal void loadAllMissionLists() {
+            if(missionList.Count <= 0) {
                 contractUtils.LogFormatted("No Mission Lists Detected; Regenerating Master List");
                 addFullMissionList();
             }
-            else
-            {
-                for (int i = 0; i < missionList.Count; i++)
-                {
+            else {
+                for(int i = 0; i < missionList.Count; i++) {
                     contractMission m = missionList.At(i);
 
-                    if (m == null)
+                    if(m == null)
                         continue;
 
-                    if (m.MasterMission)
-                    {
+                    if(m.MasterMission) {
                         m.buildMissionList();
 
                         List<contractContainer> active = contractParser.getActiveContracts;
-                        
-                        for (int j = 0; j < active.Count; j++)
-                        {
+
+                        for(int j = 0; j < active.Count; j++) {
                             contractContainer c = active[j];
 
-                            if (c == null)
+                            if(c == null)
                                 continue;
 
                             m.addContract(c, true, false);
@@ -554,10 +487,8 @@ namespace ContractsWindow
             }
         }
 
-        internal static bool ListRemove(List<Guid> list, Guid id)
-        {
-            if (list.Contains(id))
-            {
+        internal static bool ListRemove(List<Guid> list, Guid id) {
+            if(list.Contains(id)) {
                 list.Remove(id);
                 return true;
             }
@@ -570,17 +501,15 @@ namespace ContractsWindow
         #region save/load methods
 
         //Save and load the window rectangle position
-        private void saveWindow(Rect source)
-        {
+        private void saveWindow(Rect source) {
             int i = contractUtils.currentScene(HighLogic.LoadedScene);
-            windowPos[i * 4] = (int)source.x;
-            windowPos[(i * 4) + 1] = (int)source.y;
-            windowPos[(i * 4) + 2] = (int)source.width;
-            windowPos[(i * 4) + 3] = (int)source.height;
+            windowPos[i * 4] = (int) source.x;
+            windowPos[(i * 4) + 1] = (int) source.y;
+            windowPos[(i * 4) + 2] = (int) source.width;
+            windowPos[(i * 4) + 3] = (int) source.height;
         }
 
-        private void loadWindow(int[] window)
-        {
+        private void loadWindow(int[] window) {
             int i = contractUtils.currentScene(HighLogic.LoadedScene);
             windowRects[i] = new Rect(window[0], window[1], window[2], window[3]);
         }

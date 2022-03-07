@@ -31,311 +31,278 @@ using ContractParser;
 using ContractsWindow.Unity.Interfaces;
 using ContractsWindow.Unity;
 
-namespace ContractsWindow.PanelInterfaces
-{
-	/// <summary>
-	/// This is the object actually used by the contract window
-	/// It stores data for each contract about ordering and whether its parameters are shown
-	/// Different mission lists are able to store contracts in different states using this object
-	/// </summary>
-	public class contractUIObject : IContractSection
-	{
-		private contractContainer container;
-		private bool _showParams;
-		private bool _hidden;
-		private int? _order;
-		private Texture _agencyLogo;
-		private string _agencyName;
-		private Guid _id;
-		private int _difficulty;
-		private contractMission mission;
-		private List<parameterUIObject> paramList = new List<parameterUIObject>();
+namespace ContractsWindow.PanelInterfaces {
+    /// <summary>
+    /// This is the object actually used by the contract window
+    /// It stores data for each contract about ordering and whether its parameters are shown
+    /// Different mission lists are able to store contracts in different states using this object
+    /// </summary>
+    public class contractUIObject : IContractSection {
+        private contractContainer container;
+        private bool _showParams;
+        private bool _hidden;
+        private int? _order;
+        private Texture _agencyLogo;
+        private string _agencyName;
+        private Guid _id;
+        private int _difficulty;
+        private contractMission mission;
+        private List<parameterUIObject> paramList = new List<parameterUIObject>();
 
-		public contractUIObject(contractContainer c, contractMission m)
-		{
-			container = c;
-			mission = m;
-			_showParams = true;
-			_order = null;
+        public contractUIObject(contractContainer c, contractMission m) {
+            container = c;
+            mission = m;
+            _showParams = true;
+            _order = null;
 
-			_agencyLogo = container.RootAgent.Logo;
-			_agencyName = container.RootAgent.Name;
+            _agencyLogo = container.RootAgent.Logo;
+            _agencyName = container.RootAgent.Name;
 
-			_difficulty = (int)container.Root.Prestige;
-			_id = container.ID;
+            _difficulty = (int) container.Root.Prestige;
+            _id = container.ID;
 
-			for (int i = 0; i < c.FirstLevelParameterCount; i++)
-			{
-				parameterContainer p = c.getParameterLevelOne(i);
+            for(int i = 0; i < c.FirstLevelParameterCount; i++) {
+                parameterContainer p = c.getParameterLevelOne(i);
 
-				if (p == null)
-					continue;
+                if(p == null)
+                    continue;
 
-				if (string.IsNullOrEmpty(p.Title))
-					continue;
+                if(string.IsNullOrEmpty(p.Title))
+                    continue;
 
-				paramList.Add(new parameterUIObject(p));
-			}
-		}
+                paramList.Add(new parameterUIObject(p));
+            }
+        }
 
-		public void AddParameter()
-		{
-			if (container == null)
-				return;
+        public void AddParameter() {
+            if(container == null)
+                return;
 
-			for (int i = paramList.Count - 1; i >= 0; i--)
-			{
-				parameterUIObject p = paramList[i];
+            paramList.Clear();
 
-				p = null;
-			}
+            for(int i = 0; i < container.FirstLevelParameterCount; i++) {
+                parameterContainer pC = container.getParameterLevelOne(i);
 
-			paramList.Clear();
+                if(pC != null)
+                    paramList.Add(new parameterUIObject(pC));
+            }
 
-			for (int i = 0; i < container.FirstLevelParameterCount; i++)
-			{
-				parameterContainer pC = container.getParameterLevelOne(i);
+            UpdateContractUI();
+        }
 
-				if (pC == null)
-					continue;
+        private void UpdateContractUI() {
+            mission?.RefreshContract(this);
+        }
 
-				paramList.Add(new parameterUIObject(pC));
-			}
+        public Texture AgencyLogo {
+            get {
+                return _agencyLogo;
+            }
+        }
 
-			UpdateContractUI();
-		}
+        public string AgencyName {
+            get {
+                return _agencyName;
+            }
+        }
 
-		private void UpdateContractUI()
-		{
-			if (mission == null)
-				return;
+        public ContractState ContractState {
+            get {
+                if(container == null || container.Root == null)
+                    return Unity.ContractState.Active;
 
-			mission.RefreshContract(this);
-		}
+                switch(container.Root.ContractState) {
+                    case Contracts.Contract.State.Active:
+                    case Contracts.Contract.State.Generated:
+                    case Contracts.Contract.State.Offered:
+                        return Unity.ContractState.Active;
+                    case Contracts.Contract.State.Cancelled:
+                    case Contracts.Contract.State.DeadlineExpired:
+                    case Contracts.Contract.State.Declined:
+                    case Contracts.Contract.State.Failed:
+                    case Contracts.Contract.State.OfferExpired:
+                    case Contracts.Contract.State.Withdrawn:
+                        return Unity.ContractState.Fail;
+                    case Contracts.Contract.State.Completed:
+                        return Unity.ContractState.Complete;
+                    default:
+                        return Unity.ContractState.Fail;
+                }
+            }
+        }
 
-		public Texture AgencyLogo
-		{
-			get { return _agencyLogo; }
-		}
+        public string ContractTitle {
+            get {
+                return container?.Title ?? "Null...";
+            }
+        }
 
-		public string AgencyName
-		{
-			get { return _agencyName; }
-		}
+        public Guid ID {
+            get {
+                return _id;
+            }
+        }
 
-		public ContractState ContractState
-		{
-			get
-			{
-				if (container == null || container.Root == null)
-					return Unity.ContractState.Active;
+        public int Difficulty {
+            get {
+                return _difficulty;
+            }
+        }
 
-				switch (container.Root.ContractState)
-				{
-					case Contracts.Contract.State.Active:
-					case Contracts.Contract.State.Generated:
-					case Contracts.Contract.State.Offered:
-						return Unity.ContractState.Active;
-					case Contracts.Contract.State.Cancelled:
-					case Contracts.Contract.State.DeadlineExpired:
-					case Contracts.Contract.State.Declined:
-					case Contracts.Contract.State.Failed:
-					case Contracts.Contract.State.OfferExpired:
-					case Contracts.Contract.State.Withdrawn:
-						return Unity.ContractState.Fail;
-					case Contracts.Contract.State.Completed:
-						return Unity.ContractState.Complete;
-					default:
-						return Unity.ContractState.Fail;
-				}
-			}
-		}
-		
-		public string ContractTitle
-		{
-			get
-			{
-				if (container == null)
-					return "Null...";
+        public void SetHidden(bool isHidden) {
+            _hidden = isHidden;
+        }
 
-				return container.Title;
-			}
-		}
+        public bool IsHidden {
+            get {
+                return _hidden;
+            }
+            set {
+                _hidden = value;
 
-		public Guid ID
-		{
-			get { return _id; }
-		}
+                if(mission == null)
+                    return;
 
-		public int Difficulty
-		{
-			get { return _difficulty; }
-		}
+                if(value) {
+                    contractScenario.ListRemove(mission.ActiveMissionList, _id);
 
-		public void SetHidden(bool isHidden)
-		{
-			_hidden = isHidden;
-		}
+                    mission.HiddenMissionList.Add(_id);
 
-		public bool IsHidden
-		{
-			get { return _hidden; }
-			set
-			{
-				_hidden = value;
+                    _showParams = false;
 
-				if (mission == null)
-					return;
+                    _order = null;
+                }
+                else {
+                    contractScenario.ListRemove(mission.HiddenMissionList, _id);
 
-				if (value)
-				{
-					contractScenario.ListRemove(mission.ActiveMissionList, _id);
+                    mission.ActiveMissionList.Add(_id);
 
-					mission.HiddenMissionList.Add(_id);
+                    _showParams = true;
+                }
+            }
+        }
 
-					_showParams = false;
+        public bool ShowParams {
+            get {
+                return _showParams;
+            }
+            set {
+                _showParams = value;
+            }
+        }
 
-					_order = null;
-				}
-				else
-				{
-					contractScenario.ListRemove(mission.HiddenMissionList, _id);
+        public bool IsPinned {
+            get {
+                return _order != null;
+            }
+            set {
+                if(contractWindow.Instance == null)
+                    return;
 
-					mission.ActiveMissionList.Add(_id);
+                if(value) {
+                    _order = contractWindow.Instance.GetNextPin();
 
-					_showParams = true;
-				}
-			}
-		}
+                    contractWindow.Instance.SetPinState(_id);
+                }
+                else {
+                    _order = null;
 
-		public bool ShowParams
-		{
-			get { return _showParams; }
-			set { _showParams = value; }
-		}
+                    contractWindow.Instance.UnPin(_id);
+                }
 
-		public bool IsPinned
-		{
-			get { return _order != null; }
-			set
-			{
-				if (contractWindow.Instance == null)
-					return;
+                contractWindow.Instance.RefreshContracts();
+            }
+        }
 
-				if (value)
-				{
-					_order = contractWindow.Instance.GetNextPin();
+        public int? Order {
+            get {
+                return _order;
+            }
+            set {
+                _order = value;
+            }
+        }
 
-					contractWindow.Instance.SetPinState(_id);
-				}
-				else
-				{
-					_order = null;
+        private string coloredText(string s, string sprite, string color) {
+            if(string.IsNullOrEmpty(s))
+                return "";
 
-					contractWindow.Instance.UnPin(_id);
-				}
+            return string.Format("<color={0}>{1}{2}</color>  ", color, sprite, s);
+        }
 
-				contractWindow.Instance.RefreshContracts();
-			}
-		}
+        public string RewardText {
+            get {
+                if(container == null)
+                    return "";
 
-		public int? Order
-		{
-			get { return _order; }
-			set { _order = value; }
-		}
+                return string.Format("{0}{1}{2}", coloredText(container.FundsRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1>", "#69D84FFF"), coloredText(container.SciRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Science\" tint=1>", "#02D8E9FF"), coloredText(container.RepRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>", "#C9B003FF"));
+            }
+        }
 
-		private string coloredText(string s, string sprite, string color)
-		{
-			if (string.IsNullOrEmpty(s))
-				return "";
+        public string PenaltyText {
+            get {
+                if(container == null)
+                    return "";
 
-			return string.Format("<color={0}>{1}{2}</color>  ", color, sprite, s);
-		}
+                return string.Format("{0}{1}", coloredText(container.FundsPenString, "<sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1>", "#FA4224FF"), coloredText(container.RepPenString, "<sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>", "#FA4224FF"));
+            }
+        }
 
-		public string RewardText
-		{
-			get
-			{
-				if (container == null)
-					return "";
+        public string GetNote {
+            get {
+                if(container == null)
+                    return "";
 
-				return string.Format("{0}{1}{2}", coloredText(container.FundsRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1>", "#69D84FFF"), coloredText(container.SciRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Science\" tint=1>", "#02D8E9FF"), coloredText(container.RepRewString, "<sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>", "#C9B003FF"));
-			}
-		}
+                return container.Notes;
+            }
+        }
 
-		public string PenaltyText
-		{
-			get
-			{
-				if (container == null)
-					return "";
+        public string TimeRemaining {
+            get {
+                if(container == null)
+                    return "";
 
-				return string.Format("{0}{1}", coloredText(container.FundsPenString, "<sprite=\"CurrencySpriteAsset\" name=\"Funds\" tint=1>", "#FA4224FF"), coloredText(container.RepPenString, "<sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>", "#FA4224FF"));
-			}
-		}
+                return container.DaysToExpire;
+            }
+        }
 
-		public string GetNote
-		{
-			get
-			{
-				if (container == null)
-					return "";
+        public int TimeState {
+            get {
+                if(container == null || container.Root == null)
+                    return 2;
 
-				return container.Notes;
-			}
-		}
-		
-		public string TimeRemaining
-		{
-			get
-			{
-				if (container == null)
-					return "";
+                if(container.Duration >= 2160000)
+                    return 0;
+                if(container.Duration > 0)
+                    return 1;
+                if(container.Root.ContractState == Contracts.Contract.State.Completed)
+                    return 0;
 
-				return container.DaysToExpire;
-			}
-		}
-		
-		public int TimeState
-		{
-			get
-			{
-				if (container == null || container.Root == null)
-					return 2;
+                return 2;
+            }
+        }
 
-				if (container.Duration >= 2160000)
-					return 0;
-				else if (container.Duration > 0)
-					return 1;
-				else if (container.Root.ContractState == Contracts.Contract.State.Completed)
-					return 0;
-				else
-					return 2;
-			}
-		}
+        public IList<IParameterSection> GetParameters {
+            get {
+                return new List<IParameterSection>(paramList.ToArray());
+            }
+        }
 
-		public IList<IParameterSection> GetParameters
-		{
-			get { return new List<IParameterSection>(paramList.ToArray()); }
-		}
+        public void RemoveContractFromAll() {
+            for(int i = contractScenario.Instance.getAllMissions().Count - 1; i >= 0; i--) {
+                contractMission m = contractScenario.Instance.getAllMissions()[i];
 
-		public void RemoveContractFromAll()
-		{
-			for (int i = contractScenario.Instance.getAllMissions().Count - 1; i >= 0; i--)
-			{
-				contractMission m = contractScenario.Instance.getAllMissions()[i];
+                if(m == null)
+                    return;
 
-				if (m == null)
-					return;
+                m.RemoveContract(this);
+            }
+        }
 
-				m.RemoveContract(this);
-			}
-		}
-
-		public contractContainer Container
-		{
-			get { return container; }
-		}
-	}
+        public contractContainer Container {
+            get {
+                return container;
+            }
+        }
+    }
 }

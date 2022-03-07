@@ -31,555 +31,485 @@ using ContractParser;
 using ContractsWindow.Unity.Unity;
 using ContractsWindow.Unity.Interfaces;
 
-namespace ContractsWindow.PanelInterfaces
-{
-	/// <summary>
-	/// A list of contracts; each with its own sort order and separate lists for active and hidden contracts
-	/// A special master mission list is used to store all contracts and is used as the source for all other missions
-	/// </summary>
-	public class contractMission : IMissionSection
-	{
-		private bool _isVisible;
-		private string _missionTitle;
-		private string activeString;
-		private string hiddenString;
-		private string vesselIDString = "";
-		private Dictionary<Guid, Vessel> currentVessels;
-		private Dictionary<Guid, contractUIObject> contractList;
-		private List<Guid> activeMissionList;
-		private List<Guid> hiddenMissionList;
-		private bool ascendingOrder = true;
-		private bool showActiveMissions = true;
-		private contractSortClass orderMode = contractSortClass.Difficulty;
-		private bool _masterMission;
-		private CW_MissionSection UIParent;
+namespace ContractsWindow.PanelInterfaces {
+    /// <summary>
+    /// A list of contracts; each with its own sort order and separate lists for active and hidden contracts
+    /// A special master mission list is used to store all contracts and is used as the source for all other missions
+    /// </summary>
+    public class contractMission : IMissionSection {
+        private bool _isVisible;
+        private string _missionTitle;
+        private string activeString;
+        private string hiddenString;
+        private string vesselIDString = "";
+        private Dictionary<Guid, Vessel> currentVessels;
+        private Dictionary<Guid, contractUIObject> contractList;
+        private List<Guid> activeMissionList;
+        private List<Guid> hiddenMissionList;
+        private bool ascendingOrder = true;
+        private bool showActiveMissions = true;
+        private contractSortClass orderMode = contractSortClass.Difficulty;
+        internal bool _masterMission;
+        private CW_MissionSection UIParent;
 
-		public string ContractNumber
-		{
-			get { return contractList.Count.ToString(); }			
-		}
+        public string ContractNumber {
+            get {
+                return contractList.Count.ToString();
+            }
+        }
 
-		public bool IsVisible
-		{
-			get { return _isVisible; }
-			set { _isVisible = value; }
-		}
+        public bool IsVisible {
+            get {
+                return _isVisible;
+            }
+            set {
+                _isVisible = value;
+            }
+        }
 
-		public bool MasterMission
-		{
-			get { return _masterMission; }
-			set { _masterMission = value; }
-		}
+        public bool MasterMission {
+            get {
+                return _masterMission;
+            }
+            set {
+                _masterMission = value;
+            }
+        }
 
-		public bool ShowHidden
-		{
-			get { return !showActiveMissions; }
-			set
-			{
-				showActiveMissions = !value;
+        public bool ShowHidden {
+            get {
+                return !showActiveMissions;
+            }
+            set {
+                showActiveMissions = !value;
 
-				if (contractWindow.Instance == null)
-					return;
+                if(contractWindow.Instance == null)
+                    return;
 
-				contractWindow.Instance.switchLists(value);
+                contractWindow.Instance.switchLists(value);
 
-				contractWindow.Instance.RefreshContracts();
-			}
-		}
+                contractWindow.Instance.RefreshContracts();
+            }
+        }
 
-		public bool DescendingOrder
-		{
-			get { return !ascendingOrder; }
-			set
-			{
-				ascendingOrder = !value;
+        public bool DescendingOrder {
+            get {
+                return !ascendingOrder;
+            }
+            set {
+                ascendingOrder = !value;
 
-				if (contractWindow.Instance == null)
-					return;
+                if(contractWindow.Instance == null)
+                    return;
 
-				contractWindow.Instance.RefreshContracts();
-			}
-		}
-		
-		public string MissionTitle
-		{
-			get
-			{
-				if (_masterMission)
-					return "All Contracts";
+                contractWindow.Instance.RefreshContracts();
+            }
+        }
 
-				return _missionTitle;
-			}
-			set
-			{
-				if (_masterMission)
-					return;
+        public string MissionTitle {
+            get {
+                if(_masterMission)
+                    return "All Contracts";
 
-				string old = _missionTitle;
+                return _missionTitle;
+            }
+            set {
+                if(_masterMission)
+                    return;
 
-				contractScenario.Instance.removeMissionList(old);
+                string old = _missionTitle;
 
-				_missionTitle = value;
+                contractScenario.Instance.removeMissionList(old);
 
-				if (!contractScenario.Instance.addMissionList(_missionTitle))
-					_missionTitle = old;
-			}
-		}
+                _missionTitle = value;
 
-		public void AddContract(IContractSection contract)
-		{
-			if (UIParent != null)
-				UIParent.AddContract(contract);
+                if(!contractScenario.Instance.addMissionList(_missionTitle))
+                    _missionTitle = old;
+            }
+        }
 
-			addContract(((contractUIObject)contract).Container, !contract.IsHidden, false);
-		}
-		
-		public bool ContractContained(Guid contract)
-		{
-			return contractList.ContainsKey(contract);
-		}
-		
-		public IList<IContractSection> GetContracts
-		{
-			get { return new List<IContractSection>(contractList.Values.ToArray()); }
-		}
+        public void AddContract(IContractSection contract) {
+            if(UIParent != null)
+                UIParent.AddContract(contract);
 
-		public void SetSort(int i)
-		{
-			orderMode = (contractSortClass)i;
+            addContract(((contractUIObject) contract).Container, !contract.IsHidden, false);
+        }
 
-			if (contractWindow.Instance == null)
-				return;
+        public bool ContractContained(Guid contract) {
+            return contractList.ContainsKey(contract);
+        }
 
-			contractWindow.Instance.RefreshContracts();
-		}
-		
-		public void RemoveContract(IContractSection contract)
-		{
-			if (UIParent != null)
-				UIParent.RemoveContract(contract.ID);
+        public IList<IContractSection> GetContracts {
+            get {
+                return new List<IContractSection>(contractList.Values.ToArray());
+            }
+        }
 
-			removeContract(((contractUIObject)contract).Container);
-		}
-		
-		public void RemoveMission()
-		{
-			contractScenario.Instance.removeMissionList(_missionTitle);
+        public void SetSort(int i) {
+            orderMode = (contractSortClass) i;
 
-			contractScenario.Instance.setCurrentMission(contractScenario.Instance.MasterMission.MissionTitle);
-		}
-		
-		public void SetMission()
-		{
-			contractScenario.Instance.setCurrentMission(_missionTitle);
-		}
+            if(contractWindow.Instance == null)
+                return;
 
-		public void SetParent(CW_MissionSection m)
-		{
-			UIParent = m;
-		}
+            contractWindow.Instance.RefreshContracts();
+        }
 
-		public string Name
-		{
-			get
-			{
-				if (_masterMission)
-					return "All Contracts";
+        public void RemoveContract(IContractSection contract) {
+            if(UIParent != null)
+                UIParent.RemoveContract(contract.ID);
 
-				return _missionTitle;
-			}
-			internal set { _missionTitle = value; }
-		}
+            removeContract(((contractUIObject) contract).Container);
+        }
 
-		public string InternalName
-		{
-			get { return _missionTitle; }
-		}
+        public void RemoveMission() {
+            contractScenario.Instance.removeMissionList(_missionTitle);
 
-		public string VesselIDs
-		{
-			get { return vesselIDString; }
-		}
+            contractScenario.Instance.setCurrentMission(contractScenario.Instance.MasterMission.MissionTitle);
+        }
 
-		public int ActiveContracts
-		{
-			get { return contractList.Count; }
-		}
+        public void SetMission() {
+            contractScenario.Instance.setCurrentMission(_missionTitle);
+        }
 
-		public List<Guid> ActiveMissionList
-		{
-			get { return activeMissionList; }
-		}
+        public void SetParent(CW_MissionSection m) {
+            UIParent = m;
+        }
 
-		public List<Guid> HiddenMissionList
-		{
-			get { return hiddenMissionList; }
-		}
+        public string Name {
+            get {
+                if(_masterMission)
+                    return "All Contracts";
 
-		public bool AscendingOrder
-		{
-			get { return ascendingOrder; }
-			internal set { ascendingOrder = value; }
-		}
+                return _missionTitle;
+            }
+            internal set {
+                _missionTitle = value;
+            }
+        }
 
-		public bool ShowActiveMissions
-		{
-			get { return showActiveMissions; }
-			internal set { showActiveMissions = value; }
-		}
+        public string InternalName {
+            get {
+                return _missionTitle;
+            }
+        }
 
-		public contractSortClass OrderMode
-		{
-			get { return orderMode; }
-			internal set { orderMode = value; }
-		}
+        public string VesselIDs {
+            get {
+                return vesselIDString;
+            }
+        }
 
-		public bool ContainsVessel(Vessel v)
-		{
-			if (v == null)
-				return false;
+        public int ActiveContracts {
+            get {
+                return contractList.Count;
+            }
+        }
 
-			return currentVessels.ContainsKey(v.id);
-		}
+        public List<Guid> ActiveMissionList {
+            get {
+                return activeMissionList;
+            }
+        }
 
-        public void RefreshContract(Guid id)
-        {
+        public List<Guid> HiddenMissionList {
+            get {
+                return hiddenMissionList;
+            }
+        }
+
+        public bool AscendingOrder {
+            get {
+                return ascendingOrder;
+            }
+            internal set {
+                ascendingOrder = value;
+            }
+        }
+
+        public bool ShowActiveMissions {
+            get {
+                return showActiveMissions;
+            }
+            internal set {
+                showActiveMissions = value;
+            }
+        }
+
+        public contractSortClass OrderMode {
+            get {
+                return orderMode;
+            }
+            internal set {
+                orderMode = value;
+            }
+        }
+
+        public bool ContainsVessel(Vessel v) {
+            if(v == null)
+                return false;
+
+            return currentVessels.ContainsKey(v.id);
+        }
+
+        public void RefreshContract(Guid id) {
             IContractSection contract = getContract(id);
 
-            if (contract != null)
+            if(contract != null)
                 RefreshContract(contract);
         }
 
-		public void RefreshContract(IContractSection contract)
-		{
-			if (contract == null)
-				return;
+        public void RefreshContract(IContractSection contract) {
+            if(contract == null)
+                return;
 
-			if (UIParent == null)
-				return;
+            UIParent?.RefreshContract(contract);
+        }
 
-			UIParent.RefreshContract(contract);
-		}
+        internal contractMission(string n, string active, string hidden, string vessels, bool asc, bool showActive, int sMode, bool Master) {
+            _missionTitle = n;
+            activeString = active;
+            hiddenString = hidden;
+            vesselIDString = vessels;
+            ascendingOrder = asc;
+            showActiveMissions = showActive;
+            _masterMission = Master;
+            orderMode = (contractSortClass) sMode;
+            contractList = new Dictionary<Guid, contractUIObject>();
+            activeMissionList = new List<Guid>();
+            hiddenMissionList = new List<Guid>();
+            currentVessels = new Dictionary<Guid, Vessel>();
+        }
 
-		internal contractMission(string n, string active, string hidden, string vessels, bool asc, bool showActive, int sMode, bool Master)
-		{
-			_missionTitle = n;
-			activeString = active;
-			hiddenString = hidden;
-			vesselIDString = vessels;
-			ascendingOrder = asc;
-			showActiveMissions = showActive;
-			_masterMission = Master;
-			orderMode = (contractSortClass)sMode;
-			contractList = new Dictionary<Guid, contractUIObject>();
-			activeMissionList = new List<Guid>();
-			hiddenMissionList = new List<Guid>();
-			currentVessels = new Dictionary<Guid, Vessel>();
-		}
+        internal contractMission(string n) {
+            _missionTitle = n;
+            contractList = new Dictionary<Guid, contractUIObject>();
+            activeMissionList = new List<Guid>();
+            hiddenMissionList = new List<Guid>();
+            currentVessels = new Dictionary<Guid, Vessel>();
+        }
 
-		internal contractMission(string n)
-		{
-			_missionTitle = n;
-			contractList = new Dictionary<Guid, contractUIObject>();
-			activeMissionList = new List<Guid>();
-			hiddenMissionList = new List<Guid>();
-			currentVessels = new Dictionary<Guid, Vessel>();
-		}
+        internal contractUIObject getContract(Guid id) {
+            contractUIObject c = contractList[id];
 
-		internal contractUIObject getContract(Guid id)
-		{
-			if (contractList.ContainsKey(id))
-			{
-				contractUIObject c = contractList[id];
+            if(c?.Container != null)
+                return c;
 
-				if (c.Container == null)
-					return null;
-				else
-					return c;
-			}
-			else
-				return null;
-		}
-        
-		internal void buildMissionList()
-		{
-			resetMasterList();
-			clearLists();
-			buildMissionList(activeString, true);
-			buildMissionList(hiddenString, false);
-			buildVesselList(vesselIDString);
+            return null;
+        }
+
+        internal void buildMissionList() {
+            resetMasterList();
+            clearLists();
+            buildMissionList(activeString, true);
+            buildMissionList(hiddenString, false);
+            buildVesselList(vesselIDString);
             contractUtils.LogFormatted("Processing Mission: {0}\nActive Contracts: {1} - Hidden Contracts: {2}", _missionTitle, activeMissionList.Count, hiddenMissionList.Count);
-		}
+        }
 
-		private void buildMissionList(string s, bool Active)
-		{
-			if (string.IsNullOrEmpty(s))
-				return;
-			else
-			{
-				string[] sA = s.Split(',');
+        private void buildMissionList(string s, bool Active) {
+            if(string.IsNullOrEmpty(s))
+                return;
+            else {
+                string[] sA = s.Split(',');
 
-				for (int i = 0; i < sA.Length; i++)
-				{
-					contractContainer c = null;
-					contractUIObject cUI = null;
+                foreach(string part in sA) {
+                    try {
+                        string[] sB = part.Split('|');
+                        Guid g = new Guid(sB[0]);
 
-					string[] sB = sA[i].Split('|');
+                        if(g == null)
+                            continue;
 
-					try
-					{
-						Guid g = new Guid(sB[0]);
+                        contractContainer c = contractParser.getActiveContract(g);
 
-						if (g == null)
-							continue;
+                        if(c == null)
+                            continue;
 
-						c = contractParser.getActiveContract(g);
+                        addContract(c, Active, true);
 
-						if (c == null)
-							continue;
+                        contractUIObject cUI = getContract(g);
 
-						addContract(c, Active, true);
+                        if(cUI == null)
+                            continue;
 
-						cUI = getContract(g);
-
-						if (cUI == null)
-							continue;
-
-						cUI.SetHidden(!Active);
-						cUI.Order = stringIntParse(sB[1]);
-						cUI.ShowParams = stringBoolParse(sB[2]);
-					}
-					catch (Exception e)
-					{
+                        cUI.SetHidden(!Active);
+                        cUI.Order = stringIntParse(sB[1]);
+                        cUI.ShowParams = stringBoolParse(sB[2]);
+                    }
+                    catch(Exception e) {
                         contractUtils.LogFormatted("Guid invalid: {0}", e);
-						continue;
-					}
-				}
-			}
-		}
+                    }
+                }
+            }
+        }
 
-		internal List<Guid> loadPinnedContracts(List<Guid> gID)
-		{
-			List<contractUIObject> temp = new List<contractUIObject>();
-			List<Guid> idTemp = new List<Guid>();
+        internal List<Guid> loadPinnedContracts(List<Guid> gID) {
+            List<contractUIObject> pinned = gID.Select(id => getContract(id)).Where(contract => contract?.Order != null).ToList();
+            List<Guid> pinnedIds = new List<Guid>();
 
-			foreach (Guid id in gID)
-			{
-				contractUIObject c = getContract(id);
+            if(pinned.Count > 0) {
+                pinned.Sort((a, b) => {
+                    return Comparer<int?>.Default.Compare(a.Order, b.Order);
+                });
+                pinnedIds = pinned.Select(x => x.Container.Root.ContractGuid).ToList();
+            }
 
-				if (c != null)
-				{
-					if (c.Order != null)
-						temp.Add(c);
-				}
-			}
+            return pinnedIds;
+        }
 
-			if (temp.Count > 0)
-			{
-				temp.Sort((a, b) =>
-				{
-					return Comparer<int?>.Default.Compare(a.Order, b.Order);
-				});
+        private bool stringBoolParse(string source) {
+            if(bool.TryParse(source, out bool b))
+                return b;
+            return true;
+        }
 
-                for (int i = 0; i < temp.Count; i++)
-                {
-                    idTemp.Add(temp[i].Container.Root.ContractGuid);
-				}
-			}
+        private int? stringIntParse(string s) {
+            if(int.TryParse(s, out int i))
+                return i;
+            return null;
+        }
 
-			return idTemp;
-		}
-
-		private bool stringBoolParse(string source)
-		{
-			bool b;
-			if (bool.TryParse(source, out b))
-				return b;
-			return true;
-		}
-
-		private int? stringIntParse(string s)
-		{
-			int i;
-			if (int.TryParse(s, out i)) return i;
-			return null;
-		}
-
-		internal void addContract(contractContainer c, bool active, bool warn, bool addToUI = false)
-		{
-			if (!activeMissionList.Contains(c.Root.ContractGuid) && !hiddenMissionList.Contains(c.Root.ContractGuid))
-			{
-				if (addToMasterList(c, addToUI))
-				{
-					if (active)
-						activeMissionList.Add(c.Root.ContractGuid);
-					else
-						hiddenMissionList.Add(c.Root.ContractGuid);
-				}
-			}
-			else if (warn)
+        internal void addContract(contractContainer c, bool active, bool warn, bool addToUI = false) {
+            if(!activeMissionList.Contains(c.Root.ContractGuid) && !hiddenMissionList.Contains(c.Root.ContractGuid)) {
+                if(addToMasterList(c, addToUI)) {
+                    if(active)
+                        activeMissionList.Add(c.Root.ContractGuid);
+                    else
+                        hiddenMissionList.Add(c.Root.ContractGuid);
+                }
+            }
+            else if(warn)
                 contractUtils.LogFormatted("Mission List Already Contains Contract: {0}", c.Title);
-		}
+        }
 
-		private bool addToMasterList(contractContainer c, bool add = false)
-		{
-			if (!contractList.ContainsKey(c.Root.ContractGuid))
-			{
-				contractUIObject cUI = new contractUIObject(c, this);
+        private bool addToMasterList(contractContainer c, bool add) {
+            if(!contractList.ContainsKey(c.Root.ContractGuid)) {
+                contractUIObject cUI = new contractUIObject(c, this);
 
-				contractList.Add(c.Root.ContractGuid, cUI);
+                contractList.Add(c.Root.ContractGuid, cUI);
 
-				if (add && UIParent != null)
-					UIParent.AddContract(cUI);
+                if(add)
+                    UIParent?.AddContract(cUI);
 
-				return true;
-			}
-			else
+                return true;
+            }
+            else
                 contractUtils.LogFormatted("Master Mission List For: [{0}] Already Contains Contract: [{1}]", _missionTitle, c.Title);
 
-			return false;
-		}
+            return false;
+        }
 
-		internal void removeContract(contractContainer c)
-		{
-			if (contractScenario.ListRemove(activeMissionList, c.Root.ContractGuid) || contractScenario.ListRemove(hiddenMissionList, c.Root.ContractGuid))
-				removeFromMasterList(c);
-		}
+        internal void removeContract(contractContainer c) {
+            if(contractScenario.ListRemove(activeMissionList, c.Root.ContractGuid) || contractScenario.ListRemove(hiddenMissionList, c.Root.ContractGuid))
+                removeFromMasterList(c);
+        }
 
-		private void removeFromMasterList(contractContainer c)
-		{
-			if (contractList.ContainsKey(c.Root.ContractGuid))
-				contractList.Remove(c.Root.ContractGuid);
-		}
+        private void removeFromMasterList(contractContainer c) {
+            if(contractList.ContainsKey(c.Root.ContractGuid))
+                contractList.Remove(c.Root.ContractGuid);
+        }
 
-		private void resetMasterList()
-		{
-			contractList.Clear();
-		}
+        private void resetMasterList() {
+            contractList.Clear();
+        }
 
-		private void clearLists()
-		{
-			activeMissionList.Clear();
-			hiddenMissionList.Clear();
-		}
+        private void clearLists() {
+            activeMissionList.Clear();
+            hiddenMissionList.Clear();
+        }
 
-		private void addToVessels(Vessel v, bool warn = true)
-		{
-			if (!currentVessels.ContainsKey(v.id))
-				currentVessels.Add(v.id, v);
-			else if (warn)
+        private void addToVessels(Vessel v, bool warn = true) {
+            if(!currentVessels.ContainsKey(v.id))
+                currentVessels.Add(v.id, v);
+            else if(warn)
                 contractUtils.LogFormatted("Mission [{0}] Vessel List Already Contains A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
-		}
+        }
 
-		private void removeFromVessels(Vessel v, bool warn = true)
-		{
-			if (currentVessels.ContainsKey(v.id))
-				currentVessels.Remove(v.id);
-			else if (warn)
+        private void removeFromVessels(Vessel v, bool warn = true) {
+            if(currentVessels.ContainsKey(v.id))
+                currentVessels.Remove(v.id);
+            else if(warn)
                 contractUtils.LogFormatted("Mission [{0}] Vessel List Does Not Contain A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
-		}
+        }
 
-		internal string stringConcat(List<Guid> source)
-		{
-			if (source.Count == 0)
-				return "";
+        internal string stringConcat(List<Guid> source) {
+            if(source.Count == 0)
+                return "";
 
-			List<string> s = new List<string>();
+            List<string> s = new List<string>();
 
-			for (int j = 0; j < source.Count; j++)
-			{
-				contractUIObject c = getContract(source[j]);
+            foreach(Guid guid in source) {
+                contractUIObject c = getContract(guid);
 
-				if (c == null)
-					continue;
+                if(c == null)
+                    continue;
 
-				string i;
+                string i = c.Order?.ToString() ?? "N";
 
-				if (c.Order == null)
-					i = "N";
-				else
-					i = c.Order.ToString();
+                string id = string.Format("{0}|{1}|{2}", guid, i, c.ShowParams);
 
-				string id = string.Format("{0}|{1}|{2}", source[j], i, c.ShowParams);
+                s.Add(id);
+            }
 
-				s.Add(id);
-			}
+            return string.Join(",", s.ToArray());
+        }
 
-			return string.Join(",", s.ToArray());
-		}
+        internal string vesselConcat(contractMission m) {
+            if(m == null || !HighLogic.LoadedSceneIsFlight)
+                return vesselIDString;
 
-		internal string vesselConcat(contractMission m)
-		{
-			if (m == null || !HighLogic.LoadedSceneIsFlight)
-				return vesselIDString;
+            Vessel vessel = FlightGlobals.ActiveVessel;
 
-			Vessel v = FlightGlobals.ActiveVessel;
+            if(vessel == null)
+                return vesselIDString;
 
-			if (v == null)
-				return vesselIDString;
+            bool withVessel = ContainsVessel(vessel);
+            bool currentMission = m == this;
 
-			bool withVessel = ContainsVessel(v);
-			bool currentMission = m == this;
+            if(withVessel && !currentMission)
+                removeFromVessels(vessel, false);
+            else if(!withVessel && currentMission)
+                addToVessels(vessel, false);
 
-			if (withVessel && !currentMission)
-				removeFromVessels(v, false);
-			else if (!withVessel && currentMission)
-				addToVessels(v, false);
+            List<Vessel> source = currentVessels.Values.ToList();
 
-			List<Vessel> source = currentVessels.Values.ToList();
+            return vesselConcat(source);
+        }
 
-			return vesselConcat(source);
-		}
+        private string vesselConcat(List<Vessel> vesselList) {
+            if(vesselList.Count <= 0)
+                return "";
 
-		private string vesselConcat(List<Vessel> v)
-		{
-			int i = v.Count;
+            string[] vesselIdList = vesselList.Select(vessel => vessel?.id.ToString()).ToArray();
 
-			if (i <= 0)
-				return "";
+            return string.Join(",", vesselIdList);
+        }
 
-			string[] s = new string[i];
+        private void buildVesselList(string s) {
+            if(!HighLogic.LoadedSceneIsFlight)
+                return;
 
-			for (int j = 0; j < i; j++)
-			{
-				if (v[j] != null)
-					s[j] = v[j].id.ToString();
-			}
+            if(string.IsNullOrEmpty(s))
+                return;
 
-			return string.Join(",", s);
-		}
+            string[] a = s.Split(',');
 
-		private void buildVesselList(string s)
-		{
-			if (!HighLogic.LoadedSceneIsFlight)
-				return;
+            foreach(string part in a) {
+                try {
+                    Guid g = new Guid(part);
+                    Vessel v = FlightGlobals.Vessels.FirstOrDefault(V => V.id == g);
 
-			if (string.IsNullOrEmpty(s))
-				return;
-
-			string[] a = s.Split(',');
-
-			for (int i = 0; i < a.Length; i++)
-			{
-				try
-				{
-					Guid g = new Guid(a[i]);
-					Vessel v = FlightGlobals.Vessels.FirstOrDefault(V => V.id == g);
-
-					if (v == null)
-						continue;
-
-					addToVessels(v);
-				}
-				catch (Exception e)
-				{
+                    if(v != null)
+                        addToVessels(v);
+                }
+                catch(Exception e) {
                     contractUtils.LogFormatted("Guid invalid: {0} for mission [{1}]", e, _missionTitle);
-				}
-			}
+                }
+            }
 
-			List<Vessel> source = currentVessels.Values.ToList();
+            List<Vessel> source = currentVessels.Values.ToList();
 
-			vesselIDString = vesselConcat(source);
-		}
-	}
+            vesselIDString = vesselConcat(source);
+        }
+    }
 }
