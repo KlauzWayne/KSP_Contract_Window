@@ -34,7 +34,7 @@ using KSP.Localization;
 namespace ContractsWindow
 {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class contractLoader : MonoBehaviour
+	public class ContractLoader : MonoBehaviour
 	{
 		private const string prefabAssetName = "/contracts_window_prefabs.cwp";
 		private const string unitySkinAssetName = "/unity_skin.cwp";
@@ -69,14 +69,14 @@ namespace ContractsWindow
 
 		private static Texture2D toolbarIcon;
 
-		private static contractSettings settings;
+		private static ContractSettings settings;
 
 		public static Texture2D ToolbarIcon
 		{
 			get { return toolbarIcon; }
 		}
 
-		public static contractSettings Settings
+		public static ContractSettings Settings
 		{
 			get { return settings; }
 		}
@@ -157,7 +157,7 @@ namespace ContractsWindow
 			}
 
 			if (settings == null)
-				settings = new contractSettings();
+				settings = new ContractSettings();
 
 			path = KSPUtil.ApplicationRootPath + "GameData/DMagicUtilities/ContractsWindow/Resources";
 
@@ -173,7 +173,7 @@ namespace ContractsWindow
             if (prefabsLoaded && skinLoaded)
             {
                 loaded = true;
-                contractUtils.LogFormatted("UI Loaded and Processed");
+                ContractUtils.LogFormatted("UI Loaded and Processed");
             }
 
 			if (toolbarIcon == null)
@@ -330,9 +330,9 @@ namespace ContractsWindow
 				processUIPrefabs();
 
 			if (tmpProcessed && tooltipsProcessed && prefabsProcessed)
-                contractUtils.LogFormatted("UI prefab bundle loaded and processed");
+                ContractUtils.LogFormatted("UI prefab bundle loaded and processed");
 			else
-                contractUtils.LogFormatted("Error in processing UI prefab bundle\nSome UI elements may be affected or non-functional");
+                ContractUtils.LogFormatted("Error in processing UI prefab bundle\nSome UI elements may be affected or non-functional");
 
 			prefabsLoaded = true;
 		}
@@ -550,7 +550,7 @@ namespace ContractsWindow
 
 			handler.TooltipText = text;
 
-			toggleTooltip(handler, contractLoader.Settings.tooltips);
+			toggleTooltip(handler, ContractLoader.Settings.tooltips);
 		}
 
 		private static void toggleTooltip(TooltipHandler handler, bool isOn)
@@ -592,7 +592,7 @@ namespace ContractsWindow
 
 			UISkinDef skin = UISkinManager.defaultSkin;
 
-			bool stock = contractLoader.Settings.stockUIStyle || _unitySkinDef == null;
+			bool stock = ContractLoader.Settings.stockUIStyle || _unitySkinDef == null;
 
 			if (!stock)
 				skin = _unitySkinDef;

@@ -47,7 +47,7 @@ namespace ContractsWindow.Toolbar
 		{
 			get
 			{
-				if (contractLoader.Settings != null && contractLoader.Settings.replaceStockApp)
+				if (ContractLoader.Settings != null && ContractLoader.Settings.replaceStockApp)
 					return stockAppButton;
 
 				return toolbarButton;
@@ -66,7 +66,7 @@ namespace ContractsWindow.Toolbar
 
 		private void setupToolbar()
 		{
-			if (contractLoader.Settings != null && contractLoader.Settings.replaceStockApp)
+			if (ContractLoader.Settings != null && ContractLoader.Settings.replaceStockApp)
 				StartCoroutine(replaceStockContractApp());
 			else
 				StartCoroutine(addButton());
@@ -84,7 +84,7 @@ namespace ContractsWindow.Toolbar
 			while (!ApplicationLauncher.Ready)
 				yield return null;
 
-			toolbarButton = ApplicationLauncher.Instance.AddModApplication(open, close, null, null, null, null, (ApplicationLauncher.AppScenes)63, contractLoader.ToolbarIcon);
+			toolbarButton = ApplicationLauncher.Instance.AddModApplication(open, close, null, null, null, null, (ApplicationLauncher.AppScenes)63, ContractLoader.ToolbarIcon);
 
 			GameEvents.onGUIApplicationLauncherUnreadifying.Add(removeButton);
 		}
@@ -110,8 +110,8 @@ namespace ContractsWindow.Toolbar
 
 			if (toolbarButton == null)
 			{
-				contractUtils.LogFormatted("Contracts Window + App Launcher Button Not Initialized; Starting It Now");
-				toolbarButton = ApplicationLauncher.Instance.AddModApplication(open, close, null, null, null, null, (ApplicationLauncher.AppScenes)63, contractLoader.ToolbarIcon);
+				ContractUtils.LogFormatted("Contracts Window + App Launcher Button Not Initialized; Starting It Now");
+				toolbarButton = ApplicationLauncher.Instance.AddModApplication(open, close, null, null, null, null, (ApplicationLauncher.AppScenes)63, ContractLoader.ToolbarIcon);
 			}
 
 			stockAppButton = ContractsApp.Instance.appLauncherButton;
@@ -129,7 +129,7 @@ namespace ContractsWindow.Toolbar
 
 				ApplicationLauncher.Instance.DisableMutuallyExclusive(stockAppButton);
 
-				contractUtils.LogFormatted("Stock Contracts App Replaced With Contracts Window +");
+				ContractUtils.LogFormatted("Stock Contracts App Replaced With Contracts Window +");
 
 				try
 				{
@@ -137,12 +137,12 @@ namespace ContractsWindow.Toolbar
 				}
 				catch (Exception e)
 				{
-					contractUtils.LogFormatted("Error In Removing Contracts Window + Toolbar App After Replacing Stock App: {0}", e);
+					ContractUtils.LogFormatted("Error In Removing Contracts Window + Toolbar App After Replacing Stock App: {0}", e);
 				}
 			}
 			else
 			{
-				contractUtils.LogFormatted("Something went wrong while replacing the stock contract; attempting to add standard toolbar button");
+				ContractUtils.LogFormatted("Something went wrong while replacing the stock contract; attempting to add standard toolbar button");
 
 				if (toolbarButton != null)
 					GameEvents.onGUIApplicationLauncherUnreadifying.Add(removeButton);
@@ -153,24 +153,24 @@ namespace ContractsWindow.Toolbar
 
 		private void open()
 		{
-			if (contractWindow.Instance == null || contractScenario.Instance == null)
+			if (ContractWindow.Instance == null || ContractScenario.Instance == null)
 				return;
 
-			int sceneInt = contractUtils.currentScene(HighLogic.LoadedScene);
+			int sceneInt = ContractUtils.currentScene(HighLogic.LoadedScene);
 
-			contractWindow.Instance.Open();
-			contractScenario.Instance.windowVisible[sceneInt] = true;
+			ContractWindow.Instance.Open();
+			ContractScenario.Instance.windowVisible[sceneInt] = true;
 		}
 
 		private void close()
 		{
-			if (contractWindow.Instance == null || contractScenario.Instance == null)
+			if (ContractWindow.Instance == null || ContractScenario.Instance == null)
 				return;
 
-			int sceneInt = contractUtils.currentScene(HighLogic.LoadedScene);
+			int sceneInt = ContractUtils.currentScene(HighLogic.LoadedScene);
 
-			contractWindow.Instance.Close();
-			contractScenario.Instance.windowVisible[sceneInt] = false;
+			ContractWindow.Instance.Close();
+			ContractScenario.Instance.windowVisible[sceneInt] = false;
 		}
 
 	}

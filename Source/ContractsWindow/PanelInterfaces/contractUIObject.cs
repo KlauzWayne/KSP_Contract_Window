@@ -37,7 +37,7 @@ namespace ContractsWindow.PanelInterfaces {
     /// It stores data for each contract about ordering and whether its parameters are shown
     /// Different mission lists are able to store contracts in different states using this object
     /// </summary>
-    public class contractUIObject : IContractSection {
+    public class ContractUIObject : IContractSection {
         private contractContainer container;
         private bool _showParams;
         private bool _hidden;
@@ -46,10 +46,10 @@ namespace ContractsWindow.PanelInterfaces {
         private string _agencyName;
         private Guid _id;
         private int _difficulty;
-        private contractMission mission;
-        private List<parameterUIObject> paramList = new List<parameterUIObject>();
+        private ContractMission mission;
+        private List<ParameterUIObject> paramList = new List<ParameterUIObject>();
 
-        public contractUIObject(contractContainer c, contractMission m) {
+        public ContractUIObject(contractContainer c, ContractMission m) {
             container = c;
             mission = m;
             _showParams = true;
@@ -70,7 +70,7 @@ namespace ContractsWindow.PanelInterfaces {
                 if(string.IsNullOrEmpty(p.Title))
                     continue;
 
-                paramList.Add(new parameterUIObject(p));
+                paramList.Add(new ParameterUIObject(p));
             }
         }
 
@@ -84,7 +84,7 @@ namespace ContractsWindow.PanelInterfaces {
                 parameterContainer pC = container.getParameterLevelOne(i);
 
                 if(pC != null)
-                    paramList.Add(new parameterUIObject(pC));
+                    paramList.Add(new ParameterUIObject(pC));
             }
 
             UpdateContractUI();
@@ -164,7 +164,7 @@ namespace ContractsWindow.PanelInterfaces {
                     return;
 
                 if(value) {
-                    contractScenario.ListRemove(mission.ActiveMissionList, _id);
+                    ContractScenario.ListRemove(mission.ActiveMissionList, _id);
 
                     mission.HiddenMissionList.Add(_id);
 
@@ -173,7 +173,7 @@ namespace ContractsWindow.PanelInterfaces {
                     _order = null;
                 }
                 else {
-                    contractScenario.ListRemove(mission.HiddenMissionList, _id);
+                    ContractScenario.ListRemove(mission.HiddenMissionList, _id);
 
                     mission.ActiveMissionList.Add(_id);
 
@@ -196,21 +196,21 @@ namespace ContractsWindow.PanelInterfaces {
                 return _order != null;
             }
             set {
-                if(contractWindow.Instance == null)
+                if(ContractWindow.Instance == null)
                     return;
 
                 if(value) {
-                    _order = contractWindow.Instance.GetNextPin();
+                    _order = ContractWindow.Instance.GetNextPin();
 
-                    contractWindow.Instance.SetPinState(_id);
+                    ContractWindow.Instance.SetPinState(_id);
                 }
                 else {
                     _order = null;
 
-                    contractWindow.Instance.UnPin(_id);
+                    ContractWindow.Instance.UnPin(_id);
                 }
 
-                contractWindow.Instance.RefreshContracts();
+                ContractWindow.Instance.RefreshContracts();
             }
         }
 
@@ -289,8 +289,8 @@ namespace ContractsWindow.PanelInterfaces {
         }
 
         public void RemoveContractFromAll() {
-            for(int i = contractScenario.Instance.getAllMissions().Count - 1; i >= 0; i--) {
-                contractMission m = contractScenario.Instance.getAllMissions()[i];
+            for(int i = ContractScenario.Instance.getAllMissions().Count - 1; i >= 0; i--) {
+                ContractMission m = ContractScenario.Instance.getAllMissions()[i];
 
                 if(m == null)
                     return;

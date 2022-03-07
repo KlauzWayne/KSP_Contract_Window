@@ -35,7 +35,7 @@ namespace ContractsWindow
 	/// <summary>
 	/// A static helper class intended primarily for use by external assemblies through reflection
 	/// </summary>
-	public static class contractUtils
+	public static class ContractUtils
 	{
         private static readonly char[] separator = { ','};
 
@@ -177,7 +177,7 @@ namespace ContractsWindow
 				Debug.LogWarning("[Contracts +] Type provided for update contract method is null");
 				return;
 			}
-			if (contractScenario.Instance == null)
+			if (ContractScenario.Instance == null)
 			{
 				Debug.LogWarning("[Contracts +] Contracts Window + scenario module is not loaded");
 				return;
@@ -185,7 +185,7 @@ namespace ContractsWindow
 
 			try
 			{
-				contractScenario.Instance.contractChanged(contractType);
+				ContractScenario.Instance.contractChanged(contractType);
 			}
 			catch (Exception e)
 			{
@@ -204,7 +204,7 @@ namespace ContractsWindow
 				Debug.LogWarning("[Contracts +] Type provided for update parameter method is null");
 				return;
 			}
-			if (contractScenario.Instance == null)
+			if (ContractScenario.Instance == null)
 			{
 				Debug.LogWarning("[Contracts +] Contracts Window + scenario module is not loaded");
 				return;
@@ -212,7 +212,7 @@ namespace ContractsWindow
 
 			try
 			{
-				contractScenario.Instance.paramChanged(parameterType);
+				ContractScenario.Instance.paramChanged(parameterType);
 			}
 			catch (Exception e)
 			{

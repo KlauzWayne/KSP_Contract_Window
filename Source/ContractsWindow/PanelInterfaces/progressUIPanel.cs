@@ -30,7 +30,7 @@ using ProgressParser;
 
 namespace ContractsWindow.PanelInterfaces
 {
-	public class progressUIPanel : IProgressPanel
+	public class ProgressUIPanel : IProgressPanel
 	{
 		private bool _intervalVisible;
 		private bool _poiVisible;
@@ -41,7 +41,7 @@ namespace ContractsWindow.PanelInterfaces
 		private List<IStandardNode> pois = new List<IStandardNode>();
 		private List<IStandardNode> standards = new List<IStandardNode>();
 		
-		public progressUIPanel()
+		public ProgressUIPanel()
 		{			
 			loadIntervals(progressParser.getAllIntervalNodes);
 			loadStandards(progressParser.getAllStandardNodes);

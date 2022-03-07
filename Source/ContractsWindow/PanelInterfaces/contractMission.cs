@@ -36,19 +36,19 @@ namespace ContractsWindow.PanelInterfaces {
     /// A list of contracts; each with its own sort order and separate lists for active and hidden contracts
     /// A special master mission list is used to store all contracts and is used as the source for all other missions
     /// </summary>
-    public class contractMission : IMissionSection {
+    public class ContractMission : IMissionSection {
         private bool _isVisible;
         private string _missionTitle;
         private string activeString;
         private string hiddenString;
         private string vesselIDString = "";
         private Dictionary<Guid, Vessel> currentVessels;
-        private Dictionary<Guid, contractUIObject> contractList;
+        private Dictionary<Guid, ContractUIObject> contractList;
         private List<Guid> activeMissionList;
         private List<Guid> hiddenMissionList;
         private bool ascendingOrder = true;
         private bool showActiveMissions = true;
-        private contractSortClass orderMode = contractSortClass.Difficulty;
+        private ContractSortClass orderMode = ContractSortClass.Difficulty;
         internal bool _masterMission;
         private CW_MissionSection UIParent;
 
@@ -83,12 +83,12 @@ namespace ContractsWindow.PanelInterfaces {
             set {
                 showActiveMissions = !value;
 
-                if(contractWindow.Instance == null)
+                if(ContractWindow.Instance == null)
                     return;
 
-                contractWindow.Instance.switchLists(value);
+                ContractWindow.Instance.switchLists(value);
 
-                contractWindow.Instance.RefreshContracts();
+                ContractWindow.Instance.RefreshContracts();
             }
         }
 
@@ -99,10 +99,10 @@ namespace ContractsWindow.PanelInterfaces {
             set {
                 ascendingOrder = !value;
 
-                if(contractWindow.Instance == null)
+                if(ContractWindow.Instance == null)
                     return;
 
-                contractWindow.Instance.RefreshContracts();
+                ContractWindow.Instance.RefreshContracts();
             }
         }
 
@@ -119,11 +119,11 @@ namespace ContractsWindow.PanelInterfaces {
 
                 string old = _missionTitle;
 
-                contractScenario.Instance.removeMissionList(old);
+                ContractScenario.Instance.removeMissionList(old);
 
                 _missionTitle = value;
 
-                if(!contractScenario.Instance.addMissionList(_missionTitle))
+                if(!ContractScenario.Instance.addMissionList(_missionTitle))
                     _missionTitle = old;
             }
         }
@@ -132,7 +132,7 @@ namespace ContractsWindow.PanelInterfaces {
             if(UIParent != null)
                 UIParent.AddContract(contract);
 
-            addContract(((contractUIObject) contract).Container, !contract.IsHidden, false);
+            addContract(((ContractUIObject) contract).Container, !contract.IsHidden, false);
         }
 
         public bool ContractContained(Guid contract) {
@@ -146,29 +146,29 @@ namespace ContractsWindow.PanelInterfaces {
         }
 
         public void SetSort(int i) {
-            orderMode = (contractSortClass) i;
+            orderMode = (ContractSortClass) i;
 
-            if(contractWindow.Instance == null)
+            if(ContractWindow.Instance == null)
                 return;
 
-            contractWindow.Instance.RefreshContracts();
+            ContractWindow.Instance.RefreshContracts();
         }
 
         public void RemoveContract(IContractSection contract) {
             if(UIParent != null)
                 UIParent.RemoveContract(contract.ID);
 
-            removeContract(((contractUIObject) contract).Container);
+            removeContract(((ContractUIObject) contract).Container);
         }
 
         public void RemoveMission() {
-            contractScenario.Instance.removeMissionList(_missionTitle);
+            ContractScenario.Instance.removeMissionList(_missionTitle);
 
-            contractScenario.Instance.setCurrentMission(contractScenario.Instance.MasterMission.MissionTitle);
+            ContractScenario.Instance.setCurrentMission(ContractScenario.Instance.MasterMission.MissionTitle);
         }
 
         public void SetMission() {
-            contractScenario.Instance.setCurrentMission(_missionTitle);
+            ContractScenario.Instance.setCurrentMission(_missionTitle);
         }
 
         public void SetParent(CW_MissionSection m) {
@@ -235,7 +235,7 @@ namespace ContractsWindow.PanelInterfaces {
             }
         }
 
-        public contractSortClass OrderMode {
+        public ContractSortClass OrderMode {
             get {
                 return orderMode;
             }
@@ -265,7 +265,7 @@ namespace ContractsWindow.PanelInterfaces {
             UIParent?.RefreshContract(contract);
         }
 
-        internal contractMission(string n, string active, string hidden, string vessels, bool asc, bool showActive, int sMode, bool Master) {
+        internal ContractMission(string n, string active, string hidden, string vessels, bool asc, bool showActive, int sMode, bool Master) {
             _missionTitle = n;
             activeString = active;
             hiddenString = hidden;
@@ -273,23 +273,23 @@ namespace ContractsWindow.PanelInterfaces {
             ascendingOrder = asc;
             showActiveMissions = showActive;
             _masterMission = Master;
-            orderMode = (contractSortClass) sMode;
-            contractList = new Dictionary<Guid, contractUIObject>();
+            orderMode = (ContractSortClass) sMode;
+            contractList = new Dictionary<Guid, ContractUIObject>();
             activeMissionList = new List<Guid>();
             hiddenMissionList = new List<Guid>();
             currentVessels = new Dictionary<Guid, Vessel>();
         }
 
-        internal contractMission(string n) {
+        internal ContractMission(string n) {
             _missionTitle = n;
-            contractList = new Dictionary<Guid, contractUIObject>();
+            contractList = new Dictionary<Guid, ContractUIObject>();
             activeMissionList = new List<Guid>();
             hiddenMissionList = new List<Guid>();
             currentVessels = new Dictionary<Guid, Vessel>();
         }
 
-        internal contractUIObject getContract(Guid id) {
-            contractUIObject c = contractList[id];
+        internal ContractUIObject getContract(Guid id) {
+            ContractUIObject c = contractList[id];
 
             if(c?.Container != null)
                 return c;
@@ -303,7 +303,7 @@ namespace ContractsWindow.PanelInterfaces {
             buildMissionList(activeString, true);
             buildMissionList(hiddenString, false);
             buildVesselList(vesselIDString);
-            contractUtils.LogFormatted("Processing Mission: {0}\nActive Contracts: {1} - Hidden Contracts: {2}", _missionTitle, activeMissionList.Count, hiddenMissionList.Count);
+            ContractUtils.LogFormatted("Processing Mission: {0}\nActive Contracts: {1} - Hidden Contracts: {2}", _missionTitle, activeMissionList.Count, hiddenMissionList.Count);
         }
 
         private void buildMissionList(string s, bool Active) {
@@ -327,7 +327,7 @@ namespace ContractsWindow.PanelInterfaces {
 
                         addContract(c, Active, true);
 
-                        contractUIObject cUI = getContract(g);
+                        ContractUIObject cUI = getContract(g);
 
                         if(cUI == null)
                             continue;
@@ -337,14 +337,14 @@ namespace ContractsWindow.PanelInterfaces {
                         cUI.ShowParams = stringBoolParse(sB[2]);
                     }
                     catch(Exception e) {
-                        contractUtils.LogFormatted("Guid invalid: {0}", e);
+                        ContractUtils.LogFormatted("Guid invalid: {0}", e);
                     }
                 }
             }
         }
 
         internal List<Guid> loadPinnedContracts(List<Guid> gID) {
-            List<contractUIObject> pinned = gID.Select(id => getContract(id)).Where(contract => contract?.Order != null).ToList();
+            List<ContractUIObject> pinned = gID.Select(id => getContract(id)).Where(contract => contract?.Order != null).ToList();
             List<Guid> pinnedIds = new List<Guid>();
 
             if(pinned.Count > 0) {
@@ -379,12 +379,12 @@ namespace ContractsWindow.PanelInterfaces {
                 }
             }
             else if(warn)
-                contractUtils.LogFormatted("Mission List Already Contains Contract: {0}", c.Title);
+                ContractUtils.LogFormatted("Mission List Already Contains Contract: {0}", c.Title);
         }
 
         private bool addToMasterList(contractContainer c, bool add) {
             if(!contractList.ContainsKey(c.Root.ContractGuid)) {
-                contractUIObject cUI = new contractUIObject(c, this);
+                ContractUIObject cUI = new ContractUIObject(c, this);
 
                 contractList.Add(c.Root.ContractGuid, cUI);
 
@@ -394,13 +394,13 @@ namespace ContractsWindow.PanelInterfaces {
                 return true;
             }
             else
-                contractUtils.LogFormatted("Master Mission List For: [{0}] Already Contains Contract: [{1}]", _missionTitle, c.Title);
+                ContractUtils.LogFormatted("Master Mission List For: [{0}] Already Contains Contract: [{1}]", _missionTitle, c.Title);
 
             return false;
         }
 
         internal void removeContract(contractContainer c) {
-            if(contractScenario.ListRemove(activeMissionList, c.Root.ContractGuid) || contractScenario.ListRemove(hiddenMissionList, c.Root.ContractGuid))
+            if(ContractScenario.ListRemove(activeMissionList, c.Root.ContractGuid) || ContractScenario.ListRemove(hiddenMissionList, c.Root.ContractGuid))
                 removeFromMasterList(c);
         }
 
@@ -422,14 +422,14 @@ namespace ContractsWindow.PanelInterfaces {
             if(!currentVessels.ContainsKey(v.id))
                 currentVessels.Add(v.id, v);
             else if(warn)
-                contractUtils.LogFormatted("Mission [{0}] Vessel List Already Contains A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
+                ContractUtils.LogFormatted("Mission [{0}] Vessel List Already Contains A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
         }
 
         private void removeFromVessels(Vessel v, bool warn = true) {
             if(currentVessels.ContainsKey(v.id))
                 currentVessels.Remove(v.id);
             else if(warn)
-                contractUtils.LogFormatted("Mission [{0}] Vessel List Does Not Contain A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
+                ContractUtils.LogFormatted("Mission [{0}] Vessel List Does Not Contain A Vessel With ID: [{1}] And Title [{2}]", _missionTitle, v.id, v.vesselName);
         }
 
         internal string stringConcat(List<Guid> source) {
@@ -439,7 +439,7 @@ namespace ContractsWindow.PanelInterfaces {
             List<string> s = new List<string>();
 
             foreach(Guid guid in source) {
-                contractUIObject c = getContract(guid);
+                ContractUIObject c = getContract(guid);
 
                 if(c == null)
                     continue;
@@ -454,7 +454,7 @@ namespace ContractsWindow.PanelInterfaces {
             return string.Join(",", s.ToArray());
         }
 
-        internal string vesselConcat(contractMission m) {
+        internal string vesselConcat(ContractMission m) {
             if(m == null || !HighLogic.LoadedSceneIsFlight)
                 return vesselIDString;
 
@@ -503,7 +503,7 @@ namespace ContractsWindow.PanelInterfaces {
                         addToVessels(v);
                 }
                 catch(Exception e) {
-                    contractUtils.LogFormatted("Guid invalid: {0} for mission [{1}]", e, _missionTitle);
+                    ContractUtils.LogFormatted("Guid invalid: {0} for mission [{1}]", e, _missionTitle);
                 }
             }
 

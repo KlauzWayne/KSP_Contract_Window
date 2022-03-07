@@ -44,7 +44,7 @@ namespace ContractsWindow.Toolbar
 			if (!ToolbarManager.ToolbarAvailable)
 				return;
 
-			int sceneInt = contractUtils.currentScene(HighLogic.LoadedScene);
+			int sceneInt = ContractUtils.currentScene(HighLogic.LoadedScene);
 
 			contractButton = ToolbarManager.Instance.add("ContractsWindow", "ContractWindowPlus");
 
@@ -56,21 +56,21 @@ namespace ContractsWindow.Toolbar
 			contractButton.ToolTip = "Contract Window";
 			contractButton.OnClick += (e) =>
 				{
-					if (contractScenario.Instance == null)
-                        contractUtils.LogFormatted("Contract Scenario Not Loaded...");
-					else if (contractWindow.Instance == null)
-                        contractUtils.LogFormatted("Contract Window Not Loaded...");
+					if (ContractScenario.Instance == null)
+                        ContractUtils.LogFormatted("Contract Scenario Not Loaded...");
+					else if (ContractWindow.Instance == null)
+                        ContractUtils.LogFormatted("Contract Window Not Loaded...");
 					else
 					{
-						if (contractWindow.Instance.IsVisible)
+						if (ContractWindow.Instance.IsVisible)
 						{
-							contractWindow.Instance.Close();
-							contractScenario.Instance.windowVisible[sceneInt] = false;
+							ContractWindow.Instance.Close();
+							ContractScenario.Instance.windowVisible[sceneInt] = false;
 						}
 						else
 						{
-							contractWindow.Instance.Open();
-							contractScenario.Instance.windowVisible[sceneInt] = true;
+							ContractWindow.Instance.Open();
+							ContractScenario.Instance.windowVisible[sceneInt] = true;
 						}
 					}
 				};

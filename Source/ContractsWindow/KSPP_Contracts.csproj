@@ -72,22 +72,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="contractLoader.cs" />
-    <Compile Include="contractSettings.cs" />
-    <Compile Include="contractSortClass.cs" />
+    <Compile Include="ContractLoader.cs" />
+    <Compile Include="ContractSettings.cs" />
+    <Compile Include="ContractSortClass.cs" />
     <Compile Include="CWTextMeshPro.cs" />
     <Compile Include="CWTextMeshProInput.cs" />
-    <Compile Include="PanelInterfaces\contractMission.cs" />
-    <Compile Include="contractScenario.cs" />
-    <Compile Include="PanelInterfaces\contractUIObject.cs" />
-    <Compile Include="contractUtils.cs">
+    <Compile Include="PanelInterfaces\ContractMission.cs" />
+    <Compile Include="ContractScenario.cs" />
+    <Compile Include="PanelInterfaces\ContractUIObject.cs" />
+    <Compile Include="ContractUtils.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PanelInterfaces\contractWindow.cs" />
+    <Compile Include="PanelInterfaces\ContractWindow.cs" />
     <Compile Include="PanelInterfaces\IntervalNodeUI.cs" />
-    <Compile Include="PanelInterfaces\masterMission.cs" />
-    <Compile Include="PanelInterfaces\parameterUIObject.cs" />
-    <Compile Include="PanelInterfaces\progressUIPanel.cs" />
+    <Compile Include="PanelInterfaces\MasterMission.cs" />
+    <Compile Include="PanelInterfaces\ParameterUIObject.cs" />
+    <Compile Include="PanelInterfaces\ProgressUIPanel.cs" />
     <Compile Include="PanelInterfaces\StandardNodeUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Toolbar\contractStockToolbar.cs" />
