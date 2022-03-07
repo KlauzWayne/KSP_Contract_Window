@@ -74,17 +74,13 @@ namespace ContractsWindow.PanelInterfaces {
         private void LoadBodies(List<progressBodyCollection> nodes) {
             foreach (progressBodyCollection body in nodes) {
                 if (body != null && !bodies.ContainsKey(body.Body.displayName.LocalizeBodyName())) {
-                    List<progressStandard> bodySubNodes = body.getAllNodes;
-
                     List<IStandardNode> newNodes = new List<IStandardNode>();
 
-                    foreach (progressStandard subnode in bodySubNodes) {
+                    foreach (progressStandard subnode in body.getAllNodes) {
                         StandardNodeUI node = new StandardNodeUI(subnode);
 
-                        if (node == null)
-                            continue;
-
-                        newNodes.Add(node);
+                        if (node != null)
+                            newNodes.Add(node);
                     }
 
                     bodies.Add(body.Body.displayName.LocalizeBodyName(), newNodes);
