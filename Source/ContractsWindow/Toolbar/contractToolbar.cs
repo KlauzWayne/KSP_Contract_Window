@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace ContractsWindow.Toolbar
 {
-	class contractToolbar : MonoBehaviour
+	class ContractToolbar : MonoBehaviour
 	{
 		private IButton contractButton;
 

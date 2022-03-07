@@ -32,13 +32,13 @@ using UnityEngine;
 
 namespace ContractsWindow.Toolbar
 {
-	public class contractStockToolbar : MonoBehaviour
+	public class ContractStockToolbar : MonoBehaviour
 	{
 		private ApplicationLauncherButton toolbarButton = null;
 		private ApplicationLauncherButton stockAppButton = null;
-		private static contractStockToolbar instance;
+		private static ContractStockToolbar instance;
 		
-		public static contractStockToolbar Instance
+		public static ContractStockToolbar Instance
 		{
 			get { return instance; }
 		}

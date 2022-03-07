@@ -68,8 +68,8 @@ namespace ContractsWindow {
         internal Rect[] windowRects = new Rect[4] { new Rect(50, -80, 250, 300), new Rect(50, -80, 250, 300), new Rect(50, -80, 250, 300), new Rect(50, -80, 250, 300) };
         private int[] windowPos = new int[16] { 50, -80, 250, 300, 50, -80, 250, 300, 50, -80, 250, 300, 50, -80, 250, 300 };
 
-        internal contractStockToolbar appLauncherButton = null;
-        internal contractToolbar blizzyToolbarButton = null;
+        internal ContractStockToolbar appLauncherButton = null;
+        internal ContractToolbar blizzyToolbarButton = null;
 
         private bool _loaded;
 
@@ -215,7 +215,7 @@ namespace ContractsWindow {
                 stockToolbar = ContractLoader.Settings.useStockToolbar;
 
             if(stockToolbar || !ToolbarManager.ToolbarAvailable || ContractLoader.Settings.replaceStockApp) {
-                appLauncherButton = gameObject.AddComponent<contractStockToolbar>();
+                appLauncherButton = gameObject.AddComponent<ContractStockToolbar>();
 
                 if(blizzyToolbarButton != null) {
                     Destroy(blizzyToolbarButton);
@@ -223,7 +223,7 @@ namespace ContractsWindow {
                 }
             }
             else if(ToolbarManager.ToolbarAvailable && !stockToolbar) {
-                blizzyToolbarButton = gameObject.AddComponent<contractToolbar>();
+                blizzyToolbarButton = gameObject.AddComponent<ContractToolbar>();
 
                 if(appLauncherButton != null) {
                     Destroy(appLauncherButton);
@@ -304,7 +304,7 @@ namespace ContractsWindow {
                 }
 
                 if(appLauncherButton == null)
-                    appLauncherButton = gameObject.AddComponent<contractStockToolbar>();
+                    appLauncherButton = gameObject.AddComponent<ContractStockToolbar>();
             }
             else if(ToolbarManager.ToolbarAvailable && !stockToolbar) {
                 if(appLauncherButton != null) {
@@ -313,7 +313,7 @@ namespace ContractsWindow {
                 }
 
                 if(blizzyToolbarButton == null)
-                    blizzyToolbarButton = gameObject.AddComponent<contractToolbar>();
+                    blizzyToolbarButton = gameObject.AddComponent<ContractToolbar>();
             }
         }
 

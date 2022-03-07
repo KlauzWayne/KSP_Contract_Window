@@ -170,8 +170,8 @@ namespace ContractsWindow.PanelInterfaces {
                 if(ContractLoader.Settings != null)
                     ContractLoader.Settings.replaceStockApp = value;
 
-                if(value && contractStockToolbar.Instance != null)
-                    contractStockToolbar.Instance.replaceStockApp();
+                if(value && ContractStockToolbar.Instance != null)
+                    ContractStockToolbar.Instance.replaceStockApp();
             }
         }
 
@@ -405,9 +405,9 @@ namespace ContractsWindow.PanelInterfaces {
                 return;
 
             if(on)
-                contractStockToolbar.Instance?.Button?.SetTrue(false);
+                ContractStockToolbar.Instance?.Button?.SetTrue(false);
             else
-                contractStockToolbar.Instance?.Button?.SetFalse(false);
+                ContractStockToolbar.Instance?.Button?.SetFalse(false);
         }
 
         public void SetWindowPosition(Rect r) {
