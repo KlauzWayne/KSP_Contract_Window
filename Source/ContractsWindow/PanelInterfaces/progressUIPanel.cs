@@ -28,168 +28,121 @@ using System.Collections.Generic;
 using ContractsWindow.Unity.Interfaces;
 using ProgressParser;
 
-namespace ContractsWindow.PanelInterfaces
-{
-	public class progressUIPanel : IProgressPanel
-	{
-		private bool _intervalVisible;
-		private bool _poiVisible;
-		private bool _standardVisible;
-		private bool _bodyVisible;
-		private Dictionary<string, List<IStandardNode>> bodies = new Dictionary<string, List<IStandardNode>>();
-		private List<IIntervalNode> intervals = new List<IIntervalNode>();
-		private List<IStandardNode> pois = new List<IStandardNode>();
-		private List<IStandardNode> standards = new List<IStandardNode>();
-		
-		public progressUIPanel()
-		{			
-			loadIntervals(progressParser.getAllIntervalNodes);
-			loadStandards(progressParser.getAllStandardNodes);
-			loadPOIs(progressParser.getAllPOINodes);
-			loadBodies(progressParser.getAllBodyNodes);
-		}
+namespace ContractsWindow.PanelInterfaces {
+    public class ProgressUIPanel : IProgressPanel {
+        private bool _intervalVisible;
+        private bool _poiVisible;
+        private bool _standardVisible;
+        private bool _bodyVisible;
+        private readonly Dictionary<string, List<IStandardNode>> bodies = new Dictionary<string, List<IStandardNode>>();
+        private readonly List<IIntervalNode> intervals = new List<IIntervalNode>();
+        private readonly List<IStandardNode> pois = new List<IStandardNode>();
+        private readonly List<IStandardNode> standards = new List<IStandardNode>();
 
-		private void loadIntervals(List<progressInterval> nodes)
-		{
-			for (int i = nodes.Count - 1; i >= 0; i--)
-			{
-				IntervalNodeUI node = new IntervalNodeUI(nodes[i]);
+        public ProgressUIPanel() {
+            LoadIntervals(progressParser.getAllIntervalNodes);
+            LoadStandards(progressParser.getAllStandardNodes);
+            LoadPOIs(progressParser.getAllPOINodes);
+            LoadBodies(progressParser.getAllBodyNodes);
+        }
 
-				if (node == null)
-					continue;
+        private void LoadIntervals(List<progressInterval> nodes) {
+            foreach (progressInterval progressInterval in nodes) {
+                IntervalNodeUI node = new IntervalNodeUI(progressInterval);
 
-				intervals.Add(node);
-			}
-		}
+                if (node != null)
+                    intervals.Add(node);
+            }
+        }
 
-		private void loadStandards(List<progressStandard> nodes)
-		{
-			for (int i = nodes.Count - 1; i >= 0; i--)
-			{
-				StandardNodeUI node = new StandardNodeUI(nodes[i]);
+        private void LoadStandards(List<progressStandard> nodes) {
+            foreach (progressStandard node in nodes) {
+                StandardNodeUI UInode = new StandardNodeUI(node);
+                if (UInode != null)
+                    standards.Add(UInode);
+            }
+        }
 
-				if (node == null)
-					continue;
+        private void LoadPOIs(List<progressStandard> nodes) {
+            foreach (progressStandard node in nodes) {
+                StandardNodeUI UInode = new StandardNodeUI(node);
+                if (node != null)
+                    pois.Add(UInode);
+            }
+        }
 
-				standards.Add(node);
-			}
-		}
+        private void LoadBodies(List<progressBodyCollection> nodes) {
+            foreach (progressBodyCollection body in nodes) {
+                if (body != null && !bodies.ContainsKey(body.Body.displayName.LocalizeBodyName())) {
+                    List<IStandardNode> newNodes = new List<IStandardNode>();
 
-		private void loadPOIs(List<progressStandard> nodes)
-		{
-			for (int i = nodes.Count - 1; i >= 0; i--)
-			{
-				StandardNodeUI node = new StandardNodeUI(nodes[i]);
+                    foreach (progressStandard subnode in body.getAllNodes) {
+                        StandardNodeUI node = new StandardNodeUI(subnode);
 
-				if (node == null)
-					continue;
+                        if (node != null)
+                            newNodes.Add(node);
+                    }
 
-				pois.Add(node);
-			}
-		}
+                    bodies.Add(body.Body.displayName.LocalizeBodyName(), newNodes);
+                }
+            }
+        }
 
-		private void loadBodies(List<progressBodyCollection> nodes)
-		{
-			for (int i = nodes.Count - 1; i >= 0; i--)
-			{
-				progressBodyCollection body = nodes[i];
+        public bool IntervalVisible {
+            get { return _intervalVisible; }
+            set { _intervalVisible = value; }
+        }
 
-				if (body == null)
-					continue;
+        public bool POIVisible {
+            get { return _poiVisible; }
+            set { _poiVisible = value; }
+        }
 
-				if (bodies.ContainsKey(body.Body.displayName.LocalizeBodyName()))
-					continue;
+        public bool StandardVisible {
+            get { return _standardVisible; }
+            set { _standardVisible = value; }
+        }
 
-				List<progressStandard> bodySubNodes = body.getAllNodes;
+        public bool BodyVisible {
+            get { return _bodyVisible; }
+            set { _bodyVisible = value; }
+        }
 
-				List<IStandardNode> newNodes = new List<IStandardNode>();
+        public bool AnyInterval {
+            get { return progressParser.AnyInterval; }
+        }
 
-				for (int j = bodySubNodes.Count - 1; j >= 0; j--)
-				{
-					StandardNodeUI node = new StandardNodeUI(bodySubNodes[j]);
+        public bool AnyPOI {
+            get { return progressParser.AnyPOI; }
+        }
 
-					if (node == null)
-						continue;
+        public bool AnyStandard {
+            get { return progressParser.AnyStandard; }
+        }
 
-					newNodes.Add(node);
-				}
+        public bool AnyBody {
+            get { return progressParser.AnyBody; }
+        }
 
-				bodies.Add(body.Body.displayName.LocalizeBodyName(), newNodes);
-			}
-		}
+        public bool AnyBodyNode(string s) {
+            progressBodyCollection body = progressParser.getProgressBody(s);
+            return body?.IsReached ?? false;
+        }
 
-		public bool IntervalVisible
-		{
-			get { return _intervalVisible; }
-			set { _intervalVisible = value; }
-		}
+        public Dictionary<string, List<IStandardNode>> GetBodies {
+            get { return bodies; }
+        }
 
-		public bool POIVisible
-		{
-			get { return _poiVisible; }
-			set { _poiVisible = value; }
-		}
+        public IList<IIntervalNode> GetIntervalNodes {
+            get { return new List<IIntervalNode>(intervals.ToArray()); }
+        }
 
-		public bool StandardVisible
-		{
-			get { return _standardVisible; }
-			set { _standardVisible = value; }
-		}
+        public IList<IStandardNode> GetPOINodes {
+            get { return new List<IStandardNode>(pois.ToArray()); }
+        }
 
-		public bool BodyVisible
-		{
-			get { return _bodyVisible; }
-			set { _bodyVisible = value; }
-		}
-
-		public bool AnyInterval
-		{
-			get { return progressParser.AnyInterval; }
-		}
-
-		public bool AnyPOI
-		{
-			get { return progressParser.AnyPOI; }
-		}
-
-		public bool AnyStandard
-		{
-			get { return progressParser.AnyStandard; }
-		}
-
-		public bool AnyBody
-		{
-			get { return progressParser.AnyBody; }
-		}
-
-		public bool AnyBodyNode(string s)
-		{
-			progressBodyCollection body = progressParser.getProgressBody(s);
-
-			if (body == null)
-				return false;
-
-			return body.IsReached;
-		}
-		
-		public Dictionary<string, List<IStandardNode>> GetBodies
-		{
-			get { return bodies; }
-		}
-
-		public IList<IIntervalNode> GetIntervalNodes
-		{
-			get { return new List<IIntervalNode>(intervals.ToArray()); }
-		}
-
-		public IList<IStandardNode> GetPOINodes
-		{
-			get { return new List<IStandardNode>(pois.ToArray()); }
-		}
-
-		public IList<IStandardNode> GetStandardNodes
-		{
-			get { return new List<IStandardNode>(standards.ToArray()); }
-		}
-	}
+        public IList<IStandardNode> GetStandardNodes {
+            get { return new List<IStandardNode>(standards.ToArray()); }
+        }
+    }
 }

@@ -32,12 +32,12 @@ using SentinelMission;
 
 namespace ContractsWindow.PanelInterfaces
 {
-	public class parameterUIObject : IParameterSection
+	public class ParameterUIObject : IParameterSection
 	{
 		private parameterContainer container;
-		private List<parameterUIObject> subParams = new List<parameterUIObject>();
+		private List<ParameterUIObject> subParams = new List<ParameterUIObject>();
 
-		internal parameterUIObject(parameterContainer p)
+		internal ParameterUIObject(parameterContainer p)
 		{
 			container = p;
 
@@ -54,7 +54,7 @@ namespace ContractsWindow.PanelInterfaces
 				if (string.IsNullOrEmpty(c.Title))
 					continue;
 
-				subParams.Add(new parameterUIObject(c));
+				subParams.Add(new ParameterUIObject(c));
 			}
 		}
 
@@ -149,7 +149,7 @@ namespace ContractsWindow.PanelInterfaces
 
         public bool IsParameterEqual(IParameterSection paramater)
         {
-            return ((parameterUIObject)paramater).container == container;
+            return ((ParameterUIObject)paramater).container == container;
         }
 	}
 }

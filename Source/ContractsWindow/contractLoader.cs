@@ -34,7 +34,7 @@ using KSP.Localization;
 namespace ContractsWindow
 {
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	public class contractLoader : MonoBehaviour
+	public class ContractLoader : MonoBehaviour
 	{
 		private const string prefabAssetName = "/contracts_window_prefabs.cwp";
 		private const string unitySkinAssetName = "/unity_skin.cwp";
@@ -69,14 +69,14 @@ namespace ContractsWindow
 
 		private static Texture2D toolbarIcon;
 
-		private static contractSettings settings;
+		private static ContractSettings settings;
 
 		public static Texture2D ToolbarIcon
 		{
 			get { return toolbarIcon; }
 		}
 
-		public static contractSettings Settings
+		public static ContractSettings Settings
 		{
 			get { return settings; }
 		}
@@ -97,8 +97,10 @@ namespace ContractsWindow
 				if (handlers == null)
 					return;
 
-				for (int j = 0; j < handlers.Length; j++)
-					toggleTooltip(handlers[j], isOn);
+                foreach (TooltipHandler handler in handlers)
+				{
+					toggleTooltip(handler, isOn);
+				}
 			}
 		}
 
@@ -113,40 +115,35 @@ namespace ContractsWindow
 			if (loadedPrefabs == null)
 				return;
 
-			if (i == 1)
-			{
-				if (currentFontAdjustment == 1)
-					return;
+            switch (i)
+            {
+				case 1: 
+					if (currentFontAdjustment == 1)
+						return;
+					currentFontAdjustment = 1;
+					break;
+				case 0:
+					if (currentFontAdjustment == 0)
+						return;
+					currentFontAdjustment = 0;
+					break;
+				case -1:
+					currentFontAdjustment = 0;
+					break;
+				default:
+					break;
+            }
 
-				currentFontAdjustment = 1;
-			}
-			else if (i == 0)
-			{
-				if (currentFontAdjustment == 0)
-					return;
-
-				currentFontAdjustment = 0;
-			}
-			else if (i == -1)
-				currentFontAdjustment = 0;
-
-			for (int j = loadedPrefabs.Length - 1; j >= 0; j--)
-			{
-				GameObject obj = loadedPrefabs[j];
-
+            foreach (GameObject obj in loadedPrefabs)
+            {
 				if (obj == null)
 					continue;
 
 				var texts = obj.GetComponentsInChildren<TextHandler>(true);
 
-				for (int k = texts.Length - 1; k >= 0; k--)
+                foreach (TextHandler t in texts)
 				{
-					TextHandler t = texts[k];
-
-					if (t == null)
-						continue;
-
-					t.OnFontChange.Invoke(i);
+					t?.OnFontChange.Invoke(i);
 				}
 			}
 		}
@@ -160,7 +157,7 @@ namespace ContractsWindow
 			}
 
 			if (settings == null)
-				settings = new contractSettings();
+				settings = new ContractSettings();
 
 			path = KSPUtil.ApplicationRootPath + "GameData/DMagicUtilities/ContractsWindow/Resources";
 
@@ -176,7 +173,7 @@ namespace ContractsWindow
             if (prefabsLoaded && skinLoaded)
             {
                 loaded = true;
-                contractUtils.LogFormatted("UI Loaded and Processed");
+                ContractUtils.LogFormatted("UI Loaded and Processed");
             }
 
 			if (toolbarIcon == null)
@@ -234,9 +231,7 @@ namespace ContractsWindow
 			if (skinSprites == null)
 				return;
 
-			for (int i = skinSprites.Length - 1; i >= 0; i--)
-			{
-				Sprite s = skinSprites[i];
+            foreach (Sprite s in skinSprites){
 
 				if (s.name == "window")
 					_unitySkinDef.window.normal.background = s;
@@ -335,9 +330,9 @@ namespace ContractsWindow
 				processUIPrefabs();
 
 			if (tmpProcessed && tooltipsProcessed && prefabsProcessed)
-                contractUtils.LogFormatted("UI prefab bundle loaded and processed");
+                ContractUtils.LogFormatted("UI prefab bundle loaded and processed");
 			else
-                contractUtils.LogFormatted("Error in processing UI prefab bundle\nSome UI elements may be affected or non-functional");
+                ContractUtils.LogFormatted("Error in processing UI prefab bundle\nSome UI elements may be affected or non-functional");
 
 			prefabsLoaded = true;
 		}
@@ -555,7 +550,7 @@ namespace ContractsWindow
 
 			handler.TooltipText = text;
 
-			toggleTooltip(handler, contractLoader.Settings.tooltips);
+			toggleTooltip(handler, ContractLoader.Settings.tooltips);
 		}
 
 		private static void toggleTooltip(TooltipHandler handler, bool isOn)
@@ -597,7 +592,7 @@ namespace ContractsWindow
 
 			UISkinDef skin = UISkinManager.defaultSkin;
 
-			bool stock = contractLoader.Settings.stockUIStyle || _unitySkinDef == null;
+			bool stock = ContractLoader.Settings.stockUIStyle || _unitySkinDef == null;
 
 			if (!stock)
 				skin = _unitySkinDef;

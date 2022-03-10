@@ -730,31 +730,22 @@ namespace ContractsWindow.Toolbar
 
 		private void clicked(object realEvent)
 		{
-			if (OnClick != null)
-			{
-				OnClick(new ClickEvent(realEvent, this));
-			}
-		}
+            OnClick?.Invoke(new ClickEvent(realEvent, this));
+        }
 
 		public event MouseEnterHandler OnMouseEnter;
 
 		private void mouseEntered(object realEvent)
 		{
-			if (OnMouseEnter != null)
-			{
-				OnMouseEnter(new MouseEnterEvent(this));
-			}
-		}
+            OnMouseEnter?.Invoke(new MouseEnterEvent(this));
+        }
 
 		public event MouseLeaveHandler OnMouseLeave;
 
 		private void mouseLeft(object realEvent)
 		{
-			if (OnMouseLeave != null)
-			{
-				OnMouseLeave(new MouseLeaveEvent(this));
-			}
-		}
+            OnMouseLeave?.Invoke(new MouseLeaveEvent(this));
+        }
 
 		public void Destroy()
 		{

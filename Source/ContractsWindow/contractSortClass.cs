@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 namespace ContractsWindow
 {
-	public enum contractSortClass
+	public enum ContractSortClass
 	{
 		Difficulty = 1,
 		Expiration = 2,

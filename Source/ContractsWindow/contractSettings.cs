@@ -32,7 +32,7 @@ using System.Reflection;
 
 namespace ContractsWindow
 {
-	public class contractSettings
+	public class ContractSettings
 	{
 		[Persistent]
 		public bool tooltips = true;
@@ -54,16 +54,16 @@ namespace ContractsWindow
 		private const string fileName = "PluginData/Settings.cfg";
 		private string fullPath;
 
-		public contractSettings()
+		public ContractSettings()
 		{
 			fullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fileName).Replace("\\", "/");
 
 			if (Load())
-                contractUtils.LogFormatted("Settings File Loaded");
+                ContractUtils.LogFormatted("Settings File Loaded");
 			else
 			{
 				if (Save())
-                    contractUtils.LogFormatted("New Contracts Window + Settings file saved to:\n{0}", fullPath);
+                    ContractUtils.LogFormatted("New Contracts Window + Settings file saved to:\n{0}", fullPath);
 			}
 		}
 
@@ -80,13 +80,13 @@ namespace ContractsWindow
 				}
 				else
 				{
-                    contractUtils.LogFormatted("Settings file could not be found [{0}]", fullPath);
+                    ContractUtils.LogFormatted("Settings file could not be found [{0}]", fullPath);
 					return false;
 				}
 			}
 			catch (Exception e)
 			{
-                contractUtils.LogFormatted("Error while loading settings file from [{0}]\n{1}", fullPath, e);
+                ContractUtils.LogFormatted("Error while loading settings file from [{0}]\n{1}", fullPath, e);
 				return false;
 			}
 		}
@@ -103,7 +103,7 @@ namespace ContractsWindow
 			}
 			catch (Exception e)
 			{
-                contractUtils.LogFormatted("Error while saving settings file at [{0}]\n{1}", fullPath, e);
+                ContractUtils.LogFormatted("Error while saving settings file at [{0}]\n{1}", fullPath, e);
 				return false;
 			}
 		}
@@ -119,7 +119,7 @@ namespace ContractsWindow
 			}
 			catch (Exception e)
 			{
-                contractUtils.LogFormatted("Failed to generate settings file node...\n{0}", e);
+                ContractUtils.LogFormatted("Failed to generate settings file node...\n{0}", e);
 				return new ConfigNode(GetType().Name);
 			}
 		}

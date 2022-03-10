@@ -35,14 +35,16 @@ namespace ContractsWindow
 	/// <summary>
 	/// A static helper class intended primarily for use by external assemblies through reflection
 	/// </summary>
-	public static class contractUtils
+	public static class ContractUtils
 	{
-		/// <summary>
-		/// A method for manually resetting a locally cached contract title.
-		/// </summary>
-		/// <param name="contract">Instance of the contract in question</param>
-		/// <param name="name">The new contract title</param>
-		public static void setContractTitle (Contract contract, string name)
+        private static readonly char[] separator = { ','};
+
+        /// <summary>
+        /// A method for manually resetting a locally cached contract title.
+        /// </summary>
+        /// <param name="contract">Instance of the contract in question</param>
+        /// <param name="name">The new contract title</param>
+        public static void setContractTitle (Contract contract, string name)
 		{
 			try
 			{
@@ -92,13 +94,10 @@ namespace ContractsWindow
 			try
 			{
 				contractContainer c = contractParser.getActiveContract(contract.ContractGuid);
-				if (c != null)
+				parameterContainer pC = c?.AllParamList.SingleOrDefault(a => a.CParam == parameter);
+				if (pC != null)
 				{
-					parameterContainer pC = c.AllParamList.SingleOrDefault(a => a.CParam == parameter);
-					if (pC != null)
-					{
-						pC.Title = name;
-					}
+					pC.Title = name;
 				}
 			}
 			catch (Exception e)
@@ -118,14 +117,8 @@ namespace ContractsWindow
 			try
 			{
 				contractContainer c = contractParser.getActiveContract(contract.ContractGuid);
-				if (c != null)
-				{
-					parameterContainer pC = c.AllParamList.SingleOrDefault(a => a.CParam == parameter);
-					if (pC != null)
-					{
-						pC.setNotes(notes);
-					}
-				}
+				parameterContainer pC = c?.AllParamList.SingleOrDefault(a => a.CParam == parameter);
+				pC?.setNotes(notes);
 			}
 			catch (Exception e)
 			{
@@ -143,8 +136,7 @@ namespace ContractsWindow
 		{
 			try
 			{
-				contractContainer c = contractParser.getActiveContract(contract.ContractGuid);
-				return c;
+				return contractParser.getActiveContract(contract.ContractGuid);
 			}
 			catch (Exception e)
 			{
@@ -165,10 +157,7 @@ namespace ContractsWindow
 			try
 			{
 				contractContainer c = contractParser.getActiveContract(contract.ContractGuid);
-				parameterContainer pC = null;
-				if (c != null)
-					pC = c.AllParamList.SingleOrDefault(a => a.CParam == parameter);
-				return pC;
+				return c?.AllParamList.SingleOrDefault(a => a.CParam == parameter);
 			}
 			catch (Exception e)
 			{
@@ -188,7 +177,7 @@ namespace ContractsWindow
 				Debug.LogWarning("[Contracts +] Type provided for update contract method is null");
 				return;
 			}
-			if (contractScenario.Instance == null)
+			if (ContractScenario.Instance == null)
 			{
 				Debug.LogWarning("[Contracts +] Contracts Window + scenario module is not loaded");
 				return;
@@ -196,7 +185,7 @@ namespace ContractsWindow
 
 			try
 			{
-				contractScenario.Instance.contractChanged(contractType);
+				ContractScenario.Instance.contractChanged(contractType);
 			}
 			catch (Exception e)
 			{
@@ -215,7 +204,7 @@ namespace ContractsWindow
 				Debug.LogWarning("[Contracts +] Type provided for update parameter method is null");
 				return;
 			}
-			if (contractScenario.Instance == null)
+			if (ContractScenario.Instance == null)
 			{
 				Debug.LogWarning("[Contracts +] Contracts Window + scenario module is not loaded");
 				return;
@@ -223,7 +212,7 @@ namespace ContractsWindow
 
 			try
 			{
-				contractScenario.Instance.paramChanged(parameterType);
+				ContractScenario.Instance.paramChanged(parameterType);
 			}
 			catch (Exception e)
 			{
@@ -249,51 +238,30 @@ namespace ContractsWindow
         }
 
         //Convert array types into strings for storage
-        public static string stringConcat(int[] source, int i)
-        {
-            if (i == 0)
-                return "";
-            string[] s = new string[i];
-            for (int j = 0; j < i; j++)
+        public static string stringConcat<T>(T[] source)
+		{
+			string result = "";
+			if ((source?.Length ?? 0) > 0)
             {
-                s[j] = source[j].ToString();
+                foreach (T item in source)
+                {
+					result += item.ToString()+",";
+                }
             }
-            return string.Join(",", s);
-        }
-
-        public static string stringConcat(bool[] source, int i)
-        {
-            if (i == 0)
-                return "";
-            string[] s = new string[i];
-            for (int j = 0; j < i; j++)
-            {
-                s[j] = source[j].ToString();
-            }
-            return string.Join(",", s);
+			return result;
         }
 
         //Convert strings into the appropriate arrays
         public static int[] stringSplit(string source)
         {
-            string[] s = source.Split(',');
-            int[] i = new int[s.Length];
-            for (int j = 0; j < s.Length; j++)
-            {
-                i[j] = int.Parse(s[j]);
-            }
-            return i;
+            string[] s = source.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+            return s.Select(x => int.Parse(x)).ToArray();
         }
 
         public static bool[] stringSplitBool(string source)
-        {
-            string[] s = source.Split(',');
-            bool[] b = new bool[s.Length];
-            for (int j = 0; j < s.Length; j++)
-            {
-                b[j] = bool.Parse(s[j]);
-            }
-            return b;
+		{
+			string[] s = source.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+			return s.Select(x => bool.Parse(x)).ToArray();
         }
 
         public static void LogFormatted(String Message, params object[] strParams)

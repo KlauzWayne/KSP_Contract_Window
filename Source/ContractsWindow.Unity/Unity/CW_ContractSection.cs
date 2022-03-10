@@ -280,10 +280,8 @@ namespace ContractsWindow.Unity.Unity
 			if (contractInterface == null)
 				return;
 
-			for (int i = parameters.Count - 1; i >= 0; i--)
-			{
-				CW_ParameterSection p = parameters[i];
-
+            foreach (CW_ParameterSection p in parameters)
+            {
 				if (p == null)
 					continue;
 
@@ -318,12 +316,9 @@ namespace ContractsWindow.Unity.Unity
 
 		public void ToggleHidden(bool isOn)
 		{
-			if (!loaded)
+			if (!loaded || contractInterface == null)
 				return;
 
-			if (contractInterface == null)
-				return;
-            
 			if (contractInterface.ContractState != ContractState.Active)
 			{
                 OnContractRemove(contractInterface.ID);
@@ -345,10 +340,7 @@ namespace ContractsWindow.Unity.Unity
 
 		public void TogglePinned(bool isOn)
 		{
-			if (!loaded)
-				return;
-
-			if (contractInterface == null)
+			if (!loaded || contractInterface == null)
 				return;
 
 			contractInterface.IsPinned = isOn;
@@ -367,10 +359,7 @@ namespace ContractsWindow.Unity.Unity
 
 		public void ShowNote(bool isOn)
 		{
-			if (contractInterface == null)
-				return;
-
-			if (NoteContainer == null)
+			if (contractInterface == null || NoteContainer == null)
 				return;
 
 			NoteContainer.gameObject.SetActive(isOn);
@@ -381,26 +370,16 @@ namespace ContractsWindow.Unity.Unity
 
 		public void ShowParameters(bool isOn)
 		{
-			if (!loaded)
-				return;
-
-			if (contractInterface == null)
+			if (!loaded || contractInterface == null)
 				return;
 
 			contractInterface.ShowParams = isOn;
 
-			for (int i = parameters.Count - 1; i >= 0; i--)
+            foreach (CW_ParameterSection parameter in parameters)
 			{
-				CW_ParameterSection parameter = parameters[i];
-
-				if (parameter == null)
-					continue;
-
-				parameter.ToggleSubParams(isOn);
+				parameter?.ToggleSubParams(isOn);
 			}
-
-			if (ParameterSectionTransform != null)
-				ParameterSectionTransform.gameObject.SetActive(isOn);
+			ParameterSectionTransform?.gameObject.SetActive(isOn);
 		}
 
 		private void prepareHeader()
@@ -411,7 +390,6 @@ namespace ContractsWindow.Unity.Unity
 			if (TimeRemaining != null)
 			{
 				TimeRemaining.OnTextUpdate.Invoke(contractInterface.TimeRemaining);
-
 				TimeRemaining.OnColorUpdate.Invoke(timeColor(contractInterface.TimeState));
 			}
 
@@ -455,13 +433,7 @@ namespace ContractsWindow.Unity.Unity
 
 		private void setNote()
 		{
-			if (contractInterface == null)
-				return;
-
-			if (NoteContainer == null || NoteText == null)
-				return;
-
-			if (string.IsNullOrEmpty(contractInterface.GetNote))
+			if (NoteContainer == null || NoteText == null || string.IsNullOrEmpty(contractInterface?.GetNote))
 				return;
 
 			if (ContractNoteToggle != null)
@@ -474,23 +446,13 @@ namespace ContractsWindow.Unity.Unity
 
 		private void CreateParameterSections(IList<IParameterSection> sections)
 		{
-			if (sections == null)
+			if (sections == null || contractInterface == null || ParameterSectionPrefab == null || ParameterSectionTransform == null)
 				return;
 
-			if (contractInterface == null)
-				return;
-
-			if (ParameterSectionPrefab == null || ParameterSectionTransform == null)
-				return;
-
-			for (int i = 0; i < sections.Count; i++)
-			{
-				IParameterSection section = sections[i];
-
-				if (section == null)
-					continue;
-
-				CreateParameterSection(section);
+            foreach (IParameterSection section in sections)
+            {
+				if (section != null)
+					CreateParameterSection(section);
 			}
 		}
 
@@ -505,10 +467,8 @@ namespace ContractsWindow.Unity.Unity
 
 		public void AddParameter(IParameterSection section)
 		{
-			if (section == null)
-				return;
-
-			CreateParameterSection(section);
+			if (section != null)
+				CreateParameterSection(section);
 		}
 
 		private Color timeColor(int i)
