@@ -111,10 +111,7 @@ namespace ContractsWindow.Unity.Unity
         
 		public void setContract(IContractSection contract, ShowAgency showAgency, ShowMissionAdd showMissionAdd, ScrollRect scroller)
 		{
-			if (contract == null)
-				return;
-            
-			if (ContractTitle == null || ContractRewardText == null || ContractPenaltyText == null || ParamToggle == null)
+			if (contract == null || ContractTitle == null || ContractRewardText == null || ContractPenaltyText == null || ParamToggle == null)
 				return;
             
 			contractInterface = contract;
