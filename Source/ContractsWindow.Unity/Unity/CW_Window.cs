@@ -511,6 +511,7 @@ namespace ContractsWindow.Unity.Unity
             if (MissionSection == null || MissionSection.MissionInterface == null)
                 return;
 
+			//TODO 
             MissionSection.MissionInterface.RemoveMission();
         }
 

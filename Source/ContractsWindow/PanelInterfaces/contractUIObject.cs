@@ -41,7 +41,7 @@ namespace ContractsWindow.PanelInterfaces {
         private contractContainer container;
         private bool _showParams;
         private bool _hidden;
-        private int? _order;
+        private int? _pinId;
         private Texture _agencyLogo;
         private string _agencyName;
         private Guid _id;
@@ -53,7 +53,7 @@ namespace ContractsWindow.PanelInterfaces {
             container = c;
             mission = m;
             _showParams = true;
-            _order = null;
+            _pinId = null;
 
             _agencyLogo = container.RootAgent.Logo;
             _agencyName = container.RootAgent.Name;
@@ -170,7 +170,7 @@ namespace ContractsWindow.PanelInterfaces {
 
                     _showParams = false;
 
-                    _order = null;
+                    _pinId = null;
                 }
                 else {
                     ContractScenario.ListRemove(mission.HiddenMissionList, _id);
@@ -193,19 +193,19 @@ namespace ContractsWindow.PanelInterfaces {
 
         public bool IsPinned {
             get {
-                return _order != null;
+                return _pinId != null;
             }
             set {
                 if(ContractWindow.Instance == null)
                     return;
 
                 if(value) {
-                    _order = ContractWindow.Instance.GetNextPin();
+                    _pinId = ContractWindow.Instance.GetNextPin();
 
                     ContractWindow.Instance.SetPinState(_id);
                 }
                 else {
-                    _order = null;
+                    _pinId = null;
 
                     ContractWindow.Instance.UnPin(_id);
                 }
@@ -216,10 +216,10 @@ namespace ContractsWindow.PanelInterfaces {
 
         public int? Order {
             get {
-                return _order;
+                return _pinId;
             }
             set {
-                _order = value;
+                _pinId = value;
             }
         }
 
